@@ -21,18 +21,14 @@ group = 'nu.westlin.kotlinlabs.webflux'
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter')
-    implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation('org.springframework.boot:spring-boot-starter-jdbc')
+    implementation('org.springframework.boot:spring-boot-starter-webflux')
     implementation("javax.inject:javax.inject:1")
 
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.6.0'
+    // https://mvnrepository.com/artifact/org.json/json
+    testCompile group: 'org.json', name: 'json', version: '20180813'
 }
 
-/*
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}*/

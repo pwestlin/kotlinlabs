@@ -1,12 +1,12 @@
 package nu.westlin.kotlinlabs.webflux
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.*
-import java.sql.ResultSet
+import reactor.core.publisher.Mono
 
 @SpringBootApplication
 class WebfluxApplication
@@ -18,45 +18,53 @@ fun main(args: Array<String>) {
 
 @RestController
 @RequestMapping("/")
-class MovieController(private val movieRepository: JdbcMovieRepository) {
+class MovieController(private val movieRepository: MovieRepository) {
 
     @GetMapping("movie/{id}")
-    fun get(@PathVariable id: Int) = movieRepository.get(id)
+    fun get(@PathVariable id: Int) = Mono.justOrEmpty(movieRepository.get(id))
 
     @GetMapping("movies")
-    fun getAll() = movieRepository.getAll()
+    fun getAll()=
+        Mono.just(movieRepository.getAll())
 
     @PostMapping("movie")
-    fun create(title: String): Movie {
-        return movieRepository.create(title)
+    fun create(@RequestBody movie: Movie): Mono<Movie> {
+        return Mono.just(movieRepository.create(movie.title))
     }
-
 }
 
 @Repository
-class JdbcMovieRepository(private val jdbcTemplate: JdbcTemplate) {
+class MovieRepository() {
+    private val movies = mutableListOf(Movie(1, "Top Secret"), Movie(2, "Spaceballs"))
+
     fun getAll(): List<Movie> {
-        return jdbcTemplate.query("select id, title from movies"
-        ) { rs: ResultSet, _: Int ->
-            Movie(rs.getInt("id"), rs.getString("title"))
-        }
+        return movies.toList()
     }
 
     fun get(id: Int): Movie? {
-        return jdbcTemplate.queryForObject(
-            "select id, title from movies where id = ?", RowMapper { rs, _ -> Movie(rs.getInt("id"), rs.getString("title")) }, id)
+        return movies.single { it.id == id }
     }
 
     fun get(title: String): Movie? {
-        return jdbcTemplate.queryForObject(
-            "select id, title from movies where title = ?", RowMapper { rs, _ -> Movie(rs.getInt("id"), rs.getString("title")) }, title)
+        return movies.single { it.title == title }
     }
 
     fun create(title: String): Movie {
-        jdbcTemplate.update("insert into movies(title) values(?)", title)
-        return get(title) ?: throw RuntimeException("Could not find movie ${title} which just was created")
+        if (!movies.none { it.title == title }) {
+            throw RuntimeException("Movie with title $title already exist")
+        }
+
+        val movie = Movie(createId(), title)
+        movies.add(movie)
+
+        return movie
+    }
+
+    private fun createId(): Int {
+        val maxBy = movies.maxBy { it.id }
+        return if (maxBy != null) maxBy.id + 1 else 1
     }
 
 }
 
-data class Movie(val id: Int, val title: String)
+data class Movie @JsonCreator constructor(@JsonProperty("id") val id: Int, @JsonProperty("title") val title: String)
