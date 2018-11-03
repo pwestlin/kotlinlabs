@@ -8,7 +8,7 @@ class MovieTest {
 
     @Test
     fun `serialize movie`() {
-        val string = objectMapper.writeValueAsString(Movie(1, "Foo bar"))
-        println("string = ${string}")
+        val string = objectMapper.writeValueAsString(Movie(1, "Foo bar", 1987))
+        println("string = $string")
     }
 }
