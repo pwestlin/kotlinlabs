@@ -9,7 +9,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        //classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
     }
@@ -19,8 +18,6 @@ buildscript {
 allprojects {
 
     apply plugin: 'kotlin'
-    // TODO: This should be in subprojects and not here
-    apply plugin: 'kotlin-spring'
     apply plugin: 'idea'
 
     group = 'nu.westlin.kotlinlabs'
