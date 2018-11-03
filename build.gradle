@@ -1,3 +1,6 @@
+import static org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import static org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+
 buildscript {
     ext {
         kotlinVersion = '1.3.0'
@@ -16,6 +19,7 @@ buildscript {
 allprojects {
 
     apply plugin: 'kotlin'
+    // TODO: This should be in subprojects and not here
     apply plugin: 'kotlin-spring'
     apply plugin: 'idea'
 
@@ -42,5 +46,23 @@ allprojects {
     configurations {
         all*.exclude group: "com.vaadin.external.google", module: "android-json"
     }
+}
 
+subprojects {
+    tasks.withType(Test) {
+        systemProperties = System.properties
+    
+        testLogging {
+            events FAILED, SKIPPED
+    
+            afterSuite { desc, result ->
+                if (!desc.parent) { // will match the outermost suite
+                    def output = "${desc.name} results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                    def startItem = '|  ', endItem = '  |'
+                    def repeatLength = startItem.length() + output.length() + endItem.length()
+                    println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+                }
+            }
+        }
+    }
 }

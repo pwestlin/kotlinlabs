@@ -24,7 +24,7 @@ class KhttpTest {
     }
 
     @Test
-    fun `get alla countries in Europe`() {
+    fun `get all countries in Europe`() {
         val r = get("https://restcountries.eu/rest/v2/region/europe")
         println("r = ${r}")
         println(r.statusCode)
