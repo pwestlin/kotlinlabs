@@ -1,5 +1,5 @@
 rootProject.name = 'kotlin-labs'
 
 include 'coroutines'
-include 'kotlin-intro'
+include 'intro'
 include 'database'
