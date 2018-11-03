@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*
 import java.sql.ResultSet
 
 @SpringBootApplication
-class DatabaseApplication
+class WebfluxApplication
 
 fun main(args: Array<String>) {
-    runApplication<DatabaseApplication>(*args)
+    runApplication<WebfluxApplication>(*args)
 }
 
 

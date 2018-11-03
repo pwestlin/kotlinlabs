@@ -8,13 +8,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
-import se.lantmateriet.taco.kotlin.application.KotlinApplication
+import se.lantmateriet.taco.kotlin.application.IntroApplication
 import se.lantmateriet.taco.kotlin.application.beanvalidation.*
 import javax.inject.Inject
 import javax.validation.ConstraintViolationException
 
 @RunWith(SpringRunner::class)
-@SpringBootTest(classes = [KotlinApplication::class])
+@SpringBootTest(classes = [IntroApplication::class])
 class BeanValidationTest {
 
     @Inject

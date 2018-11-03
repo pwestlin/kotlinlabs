@@ -1,4 +1,4 @@
-package se.lantmateriet.taco.kotlin.application
+package nu.westlin.kotlin.database
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -7,10 +7,10 @@ import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
-class KotlinApplicationTests {
+class CoroutinesApplicationTests {
 
-    @Test
-    fun contextLoads() {
-    }
+	@Test
+	fun contextLoads() {
+	}
 
 }

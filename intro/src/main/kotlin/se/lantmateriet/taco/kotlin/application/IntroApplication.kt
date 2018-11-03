@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.Random
 
 @SpringBootApplication
-class KotlinApplication
+class IntroApplication
 
 fun main(args: Array<String>) {
-    val application = runApplication<KotlinApplication>(*args)
+    val application = runApplication<IntroApplication>(*args)
     val service = application.getBean<GreetingService>()
     println(service.greet("Sune"))
 }
