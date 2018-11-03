@@ -20,7 +20,6 @@ group = 'nu.westlin.kotlinlabs.database'
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
-    implementation('org.springframework.boot:spring-boot-starter')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
     implementation("javax.inject:javax.inject:1")

@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import org.junit.Ignore
 import org.junit.Test
 import java.time.Instant
 import java.time.LocalDateTime
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.system.measureTimeMillis
 
 
+@Ignore("Too slow")
 class CountryInfoTest {
 
     fun getCountryCodesOfCountriesInEurope(): List<String> {

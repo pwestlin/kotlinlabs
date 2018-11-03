@@ -21,13 +21,9 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("javax.inject:javax.inject:1")
 
-// https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.0.0'
-
 
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
