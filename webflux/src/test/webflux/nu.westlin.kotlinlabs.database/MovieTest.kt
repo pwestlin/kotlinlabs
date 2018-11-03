@@ -1,4 +1,4 @@
-package nu.westlin.kotlinlabs.database
+package nu.westlin.kotlinlabs.webflux
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.Test

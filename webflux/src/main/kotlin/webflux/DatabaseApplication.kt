@@ -1,4 +1,4 @@
-package nu.westlin.kotlinlabs.database
+package webflux
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
