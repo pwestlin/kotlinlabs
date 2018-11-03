@@ -1,3 +1,3 @@
 # Kotlin introduction with code samples
 
-Playing around with Kotlin
+Just playing around with Kotlin misc features
