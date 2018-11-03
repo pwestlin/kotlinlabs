@@ -38,4 +38,9 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
+    configurations {
+        all*.exclude group: "com.vaadin.external.google", module: "android-json"
+    }
+
 }

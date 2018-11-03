@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
 
 @RestController
 @RequestMapping("/")
-class MovieController(private val movieRepository: MovieRepository) {
+class MovieController(private val movieRepository: JdbcMovieRepository) {
 
     @GetMapping("movie/{id}")
     fun get(@PathVariable id: Int) = movieRepository.get(id)
@@ -34,7 +34,7 @@ class MovieController(private val movieRepository: MovieRepository) {
 }
 
 @Repository
-class MovieRepository(private val jdbcTemplate: JdbcTemplate) {
+class JdbcMovieRepository(private val jdbcTemplate: JdbcTemplate) {
     fun getAll(): List<Movie> {
         return jdbcTemplate.query("select id, title from movies"
         ) { rs: ResultSet, _: Int ->
