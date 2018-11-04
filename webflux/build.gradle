@@ -18,6 +18,10 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'nu.westlin.kotlinlabs.webflux'
 
+bootJar {
+    mainClassName = 'se.lantmateriet.taco.kotlin.application.IntroApplication'
+}
+
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-webflux')
