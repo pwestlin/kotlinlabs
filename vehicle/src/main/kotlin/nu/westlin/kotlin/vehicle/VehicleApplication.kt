@@ -94,7 +94,7 @@ enum class Type {
     BICYCLE
 }
 
-open class Vehicle(val id: Int, val type: Type, val brand: Brand, val year: Int)
+abstract class Vehicle(val id: Int, val type: Type, val brand: Brand, val year: Int)
 class Car(id: Int, brand: Brand, year: Int, val noWheels: Int = 4) : Vehicle(id, Type.CAR, brand, year)
 class Bicycle(id: Int, brand: Brand, year: Int, val noWheels: Int = 2) : Vehicle(id, Type.BICYCLE, brand, year)
 
