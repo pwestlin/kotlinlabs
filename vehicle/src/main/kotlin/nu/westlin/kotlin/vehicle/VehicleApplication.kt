@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
 
 @RestController
 @RequestMapping("/")
-class VehicleController(private val repository: JdbcVehicleRepository) {
+class VehicleController(private val repository: VehicleRepository) {
 
     @GetMapping("vehicle/{id}")
     // TODO petves: 404 if null?
@@ -58,7 +58,7 @@ class VehicleController(private val repository: JdbcVehicleRepository) {
 }
 
 @Repository
-class JdbcVehicleRepository {
+class VehicleRepository {
     val vehicles = mutableListOf(
         Car(id = 1, brand = VOLVO, year = 1987),
         Car(id = 2, brand = PORSCHE, year = 1962),
