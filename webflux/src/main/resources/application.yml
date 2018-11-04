@@ -3,3 +3,11 @@ management:
     web:
       exposure:
         include: "*"
+
+
+logging.level:
+  root: warn
+  nu.westlin.kotlinlabs: debug
+  io:
+    netty: info
+

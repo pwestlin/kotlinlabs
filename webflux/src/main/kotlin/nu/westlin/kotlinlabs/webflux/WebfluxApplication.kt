@@ -7,12 +7,11 @@ import org.springframework.boot.runApplication
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.ServerResponse.ok
-import org.springframework.web.reactive.function.server.bodyToServerSentEvents
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Duration.ofMillis
+import java.time.Duration
+import kotlin.random.Random
+
 
 @SpringBootApplication
 class WebfluxApplication
@@ -32,14 +31,10 @@ class MovieController(private val movieRepository: MovieRepository) {
     @GetMapping(path = ["movies"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun getAll() = Flux.fromIterable(movieRepository.getAll())
 
-    // TODO: Can't make this work :|
-    @GetMapping(path = ["movies"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun getAllStream(): Mono<ServerResponse> {
-        val usersFlux = Flux.fromIterable(movieRepository.getAll())
-        val userStream = Flux
-            .zip(Flux.interval(ofMillis(100)), usersFlux.repeat())
-            .map { it.t2 }
-        return ok().bodyToServerSentEvents(userStream)
+    @GetMapping(path = ["/movieTip"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun movieTip(): Flux<Movie> {
+        return Flux.interval(Duration.ofSeconds(1))
+            .map { movieRepository.randomMovie() }
     }
 
     @GetMapping("movies/afterYear/{afterYear}")
@@ -54,7 +49,12 @@ class MovieController(private val movieRepository: MovieRepository) {
 
 @Repository
 class MovieRepository() {
-    private val movies = mutableListOf(Movie(1, "Top Secret", 1984), Movie(2, "Spaceballs", 1987))
+    private val movies = mutableListOf(
+        Movie(1, "Top Secret", 1984),
+        Movie(2, "Spaceballs", 1987),
+        Movie(3, "Pulp Fiction", 1992),
+        Movie(4, "Days of Thunder", 1988)
+    )
 
     fun getAll(): List<Movie> {
         return movies.toList()
@@ -89,6 +89,10 @@ class MovieRepository() {
     }
 
     fun getAllAfterYear(year: Int): List<Movie> = movies.filter { it.year > year }
+
+    fun randomMovie(): Movie {
+        return movies[Random.nextInt(movies.size)]
+    }
 
 }
 

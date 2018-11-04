@@ -1,7 +1,6 @@
 package nu.westlin.kotlinlabs.webflux
 
 import com.nhaarman.mockito_kotlin.whenever
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
@@ -62,13 +61,15 @@ class MovieControllerTest {
     }
 
     @Test
-    @Ignore("Service does not work")
     fun `stream all movies`() {
-        whenever(repository.getAll()).thenReturn(movies)
+        whenever(repository.randomMovie())
+            .thenReturn(movies[0])
+            .thenReturn(movies[1])
+            .thenReturn(movies[2])
 
         val result = client
             .get()
-            .uri("/movies")
+            .uri("/movieTip")
             .accept(TEXT_EVENT_STREAM)
             .exchange()
             .expectStatus().isOk
@@ -76,7 +77,6 @@ class MovieControllerTest {
             .returnResult(Movie::class.java)
         val body = result.responseBody
         StepVerifier.create(body)
-            .assertNext { println("it = ${it}") }
             .expectNext(movies[0])
             .expectNext(movies[1])
             .expectNext(movies[2])
