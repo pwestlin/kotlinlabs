@@ -8,8 +8,13 @@ import org.springframework.web.reactive.function.client.bodyToFlux
 import java.time.LocalTime
 
 
+/**
+ * Consumes Server-Sent Events (SSE) from endpoint in MovieController.
+ */
 fun main() {
     SSEClient().consumeServerSentEvent()
+
+    // Sleep for a while to get some events (which arrives in another thread)
     Thread.sleep(5000)
 }
 
@@ -26,8 +31,11 @@ class SSEClient {
 
         eventStream.subscribe(
             { content ->
-                logger.info("Time: {} - event: name[{}], id [{}], content[{}] ",
-                    LocalTime.now(), content.event(), content.id(), content.data())
+                run {
+                    val movie = content.data()!!
+
+                    logger.info("Time: ${LocalTime.now()} - event: name[${content.event()}], id [${content.id()}], content[$movie] ")
+                }
             },
             { error -> logger.error("Error receiving SSE: {}", error) },
             { logger.info("Completed!!!") })
