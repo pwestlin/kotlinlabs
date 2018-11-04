@@ -1,2 +1,2 @@
 # Kotlin labs
-Trying Kotlin features and frameworks in the various subprojects
+Trying Kotlin features, idioms, tricks and frameworks in the various subprojects
