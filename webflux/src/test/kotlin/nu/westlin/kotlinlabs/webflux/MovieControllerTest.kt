@@ -1,22 +1,29 @@
 package nu.westlin.kotlinlabs.webflux
 
 import com.nhaarman.mockito_kotlin.whenever
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
+import org.springframework.http.MediaType.*
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.expectBodyList
 import org.springframework.web.reactive.function.BodyInserters
+import reactor.test.StepVerifier
 import javax.inject.Inject
+
 
 @WebFluxTest
 @RunWith(SpringRunner::class)
 class MovieControllerTest {
-    val movies = mutableListOf(Movie(1, "Top Secret", 1984), Movie(2, "Spaceballs", 1987))
+    val movies = mutableListOf(
+        Movie(1, "Top Secret", 1984),
+        Movie(2, "Spaceballs", 1987),
+        Movie(3, "Pulp Fiction", 1992)
+    )
 
     @Inject
     lateinit var client: WebTestClient
@@ -50,8 +57,31 @@ class MovieControllerTest {
             .expectStatus().isOk
             .expectHeader().contentType(APPLICATION_JSON_UTF8)
             .expectBodyList<Movie>()
-            .hasSize(2)
-            .contains(movies[0], movies[1])
+            .hasSize(3)
+            .contains(*movies.toTypedArray())
+    }
+
+    @Test
+    @Ignore("Service does not work")
+    fun `stream all movies`() {
+        whenever(repository.getAll()).thenReturn(movies)
+
+        val result = client
+            .get()
+            .uri("/movies")
+            .accept(TEXT_EVENT_STREAM)
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType("$TEXT_EVENT_STREAM_VALUE;charset=UTF-8")
+            .returnResult(Movie::class.java)
+        val body = result.responseBody
+        StepVerifier.create(body)
+            .assertNext { println("it = ${it}") }
+            .expectNext(movies[0])
+            .expectNext(movies[1])
+            .expectNext(movies[2])
+            .thenCancel()
+            .verify()
     }
 
     @Test
@@ -66,8 +96,8 @@ class MovieControllerTest {
             .expectStatus().isOk
             .expectHeader().contentType(APPLICATION_JSON_UTF8)
             .expectBodyList<Movie>()
-            .hasSize(1)
-            .contains(movies[1])
+            .hasSize(2)
+            .contains(movies[1], movies[2])
     }
 
     @Test
@@ -87,4 +117,5 @@ class MovieControllerTest {
             .hasSize(1)
             .contains(createdMovie)
     }
+
 }

@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.ok
+import org.springframework.web.reactive.function.server.bodyToServerSentEvents
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.Duration.ofMillis
 
 @SpringBootApplication
 class WebfluxApplication
@@ -24,9 +29,18 @@ class MovieController(private val movieRepository: MovieRepository) {
     @GetMapping("movie/{id}")
     fun get(@PathVariable id: Int) = Mono.justOrEmpty(movieRepository.get(id))
 
-    @GetMapping("movies")
-    fun getAll()=
-        Flux.fromIterable(movieRepository.getAll())
+    @GetMapping(path = ["movies"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    fun getAll() = Flux.fromIterable(movieRepository.getAll())
+
+    // TODO: Can't make this work :|
+    @GetMapping(path = ["movies"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun getAllStream(): Mono<ServerResponse> {
+        val usersFlux = Flux.fromIterable(movieRepository.getAll())
+        val userStream = Flux
+            .zip(Flux.interval(ofMillis(100)), usersFlux.repeat())
+            .map { it.t2 }
+        return ok().bodyToServerSentEvents(userStream)
+    }
 
     @GetMapping("movies/afterYear/{afterYear}")
     fun getAllAfteryear(@PathVariable afterYear: Int) =
