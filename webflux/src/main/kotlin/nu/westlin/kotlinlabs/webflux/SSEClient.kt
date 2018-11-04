@@ -2,8 +2,10 @@ package nu.westlin.kotlinlabs.webflux
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.codec.ServerSentEvent
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToFlux
+import java.time.LocalTime
 
 
 fun main() {
@@ -18,15 +20,14 @@ class SSEClient {
         val client = WebClient.create("http://localhost:8080/")
 
         val eventStream = client.get()
-            .uri("/movieTip")
+            .uri("/movieTip-sse")
             .retrieve()
-            .bodyToFlux<Movie>()
+            .bodyToFlux<ServerSentEvent<Movie>>()
 
         eventStream.subscribe(
-            { movie ->
-                with(movie) {
-                    logger.info("id: $id, title: $title, year: $year")
-                }
+            { content ->
+                logger.info("Time: {} - event: name[{}], id [{}], content[{}] ",
+                    LocalTime.now(), content.event(), content.id(), content.data())
             },
             { error -> logger.error("Error receiving SSE: {}", error) },
             { logger.info("Completed!!!") })

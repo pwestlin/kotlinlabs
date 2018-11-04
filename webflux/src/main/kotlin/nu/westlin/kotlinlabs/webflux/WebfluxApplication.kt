@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.http.MediaType
+import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
@@ -35,6 +36,18 @@ class MovieController(private val movieRepository: MovieRepository) {
     fun movieTip(): Flux<Movie> {
         return Flux.interval(Duration.ofSeconds(1))
             .map { movieRepository.randomMovie() }
+    }
+
+    @GetMapping("/movieTip-sse")
+    fun streamEvents(): Flux<ServerSentEvent<Movie>> {
+        return Flux.interval(Duration.ofSeconds(1))
+            .map { sequence ->
+                ServerSentEvent.builder<Movie>()
+                    .id(sequence.toString())
+                    .event("periodic-event")
+                    .data(movieRepository.randomMovie())
+                    .build()
+            }
     }
 
     @GetMapping("movies/afterYear/{afterYear}")

@@ -1,15 +1,19 @@
 package nu.westlin.kotlinlabs.webflux
 
 import com.nhaarman.mockito_kotlin.whenever
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.*
+import org.springframework.http.codec.ServerSentEvent
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.expectBodyList
+import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.test.StepVerifier
 import javax.inject.Inject
@@ -61,7 +65,42 @@ class MovieControllerTest {
     }
 
     @Test
-    fun `stream all movies`() {
+    @Ignore("Can't make this work :|")
+    fun `stream movie tips - SSE`() {
+        whenever(repository.randomMovie())
+            .thenReturn(movies[0])
+            .thenReturn(movies[1])
+            .thenReturn(movies[2])
+
+        val result = client
+            .get()
+            .uri("/movieTip-sse")
+            .accept(TEXT_EVENT_STREAM)
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType("$TEXT_EVENT_STREAM_VALUE;charset=UTF-8")
+            .returnResult<ServerSentEvent<Movie>>()
+        val body = result.responseBody
+        StepVerifier.create(body)
+            .assertNext {
+                assertThat(it.id()).isEqualTo("0")
+                assertThat(it.event()).isEqualTo("periodic-event")
+                val movie = it.data()!!
+                assertThat(movie).isEqualTo(movies[0])
+                //assertThat(it.data()!!).isEqualTo(movies[0])
+                assertThat(it.comment()).isNull()
+            }
+/*
+            .expectNext(movies[0])
+            .expectNext(movies[1])
+            .expectNext(movies[2])
+*/
+            .thenCancel()
+            .verify()
+    }
+
+    @Test
+    fun `stream movie tips`() {
         whenever(repository.randomMovie())
             .thenReturn(movies[0])
             .thenReturn(movies[1])
