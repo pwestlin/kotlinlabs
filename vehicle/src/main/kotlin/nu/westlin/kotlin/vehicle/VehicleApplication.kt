@@ -2,6 +2,10 @@
 
 package nu.westlin.kotlin.vehicle
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import nu.westlin.kotlin.vehicle.Brand.*
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -11,7 +15,6 @@ import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import javax.servlet.http.HttpServletResponse
-import kotlin.reflect.KClass
 
 
 @SpringBootApplication
@@ -24,79 +27,91 @@ fun main(args: Array<String>) {
 
 @RestController
 @RequestMapping("/")
-class VehicleController(private val repository: VehicleRepository) {
+class VehicleController(private val carRepository: CarRepository, private val bicycleRepository: BicycleRepository) {
 
-    @GetMapping("vehicle/{id}")
-    // TODO petves: 404 if null?
-    fun get(@PathVariable id: Int, response: HttpServletResponse): Vehicle? {
-        val vehicle = repository.get(id)
+    @GetMapping("/Type/{type}")
+    fun getByType(@PathVariable type: Type, response: HttpServletResponse): List<Vehicle<*>> {
+        return when (type) {
+            Type.CAR -> carRepository.all()
+            Type.BICYCLE -> bicycleRepository.all()
+        }
+    }
+
+    @GetMapping("/Type/{type}/id/{id}")
+    fun getByTypeAndId(@PathVariable type: Type, @PathVariable id: Int, response: HttpServletResponse): Vehicle<*>? {
+        val vehicle = when (type) {
+            Type.CAR -> carRepository.get(id)
+            Type.BICYCLE -> bicycleRepository.get(id)
+        }
         if (vehicle == null) response.status = HttpStatus.NOT_FOUND.value()
-
         return vehicle
     }
 
+    @GetMapping("car/{id}")
+    // TODO petves: 404 if null?
+    fun getCar(@PathVariable id: Int, response: HttpServletResponse): Car? {
+        val car = carRepository.get(id)
+        if (car == null) response.status = HttpStatus.NOT_FOUND.value()
+
+        return car
+    }
+
+    @GetMapping("cars")
+    fun getAllCars() = carRepository.all()
+
     @GetMapping("vehicles")
-    fun getAll() = repository.all()
-
-    @GetMapping("vehicles/type/{type}")
-    fun getByType(@PathVariable type: String): List<Vehicle> {
-        return repository.findBy(Type.valueOf(type))
+    fun getAllVehicles(): List<Vehicle<*>> {
+        return carRepository.all().union(bicycleRepository.all()).toList()
     }
 
-    @GetMapping("vehicles/classType/{classType}")
-    fun getByClassType(@PathVariable classType: String): List<Vehicle> {
-        return repository.findBy(getClassType(classType))
-    }
+}
 
-    private fun getClassType(type: String): KClass<out Vehicle> {
-        return when (type) {
-            "Car" -> Car::class
-            "Bicycle" -> Bicycle::class
-            else -> throw IllegalArgumentException("\"$type\" is not a known type")
-        }
-    }
+// TODO petves: Interface?
+interface VehicleRepository<T : Vehicle<T>> {
+    fun all(): List<T>
+    fun add(vehicle: T)
+    fun get(id: Int): T?
 }
 
 @Repository
-class VehicleRepository {
-    val vehicles = mutableListOf(
+class CarRepository : VehicleRepository<Car> {
+    val cars = mutableListOf(
         Car(id = 1, brand = VOLVO, year = 1987),
         Car(id = 2, brand = PORSCHE, year = 1962),
-        Car(id = 3, brand = RELIANT_ROBIN, year = 1993, noWheels = 3),
-        Bicycle(id = 4, brand = MONARK, year = 1979)
+        Car(id = 3, brand = RELIANT_ROBIN, year = 1993, noWheels = 3)
     )
 
-    fun all() = vehicles.toList()
+    override fun all() = cars.toList()
 
-    fun add(vehicle: Vehicle) {
-        vehicles.add(vehicle)
+    override fun add(vehicle: Car) {
+        cars.add(vehicle)
     }
 
-    fun get(id: Int) = vehicles.find { it.id == id }
-    fun findBy(type: KClass<out Vehicle>): List<Vehicle> {
-        return vehicles.filter { it::class == type }
+    override fun get(id: Int) = cars.find { it.id == id }
+}
+
+@Repository
+class BicycleRepository : VehicleRepository<Bicycle> {
+    val cars = mutableListOf(
+        Bicycle(id = 1, brand = MONARK, year = 1987),
+        Bicycle(id = 2, brand = CRESCENT, year = 1962)
+    )
+
+    override fun all() = cars.toList()
+
+    override fun add(vehicle: Bicycle) {
+        cars.add(vehicle)
     }
 
-    fun findBy(type: Type): List<Vehicle> {
-        return vehicles.filter { it.type == type }
-    }
+    override fun get(id: Int) = cars.find { it.id == id }
 }
 
-enum class Brand {
-    VOLVO,
-    PORSCHE,
-    RELIANT_ROBIN,
-    MONARK
-}
-
-enum class Type {
-    CAR,
-    BICYCLE
-}
-
-abstract class Vehicle(val id: Int, val type: Type, val brand: Brand, val year: Int)
-class Car(id: Int, brand: Brand, year: Int, val noWheels: Int = 4) : Vehicle(id, Type.CAR, brand, year)
-class Bicycle(id: Int, brand: Brand, year: Int, val noWheels: Int = 2) : Vehicle(id, Type.BICYCLE, brand, year)
+class Bicycle @JsonCreator constructor(
+    @JsonProperty("id") id: Int,
+    @JsonProperty("brand") brand: Brand,
+    @JsonProperty("year") year: Int,
+    @JsonProperty("noWheels") val noWheels: Int = 2) : Vehicle<Bicycle>(id, Type.BICYCLE, brand, year
+)
 
 @ControllerAdvice
 class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
@@ -109,4 +124,54 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.localizedMessage)
     }
 
+}
+
+// TODO petves: Cars an bicycles mixed is bad. :)
+enum class Brand {
+    VOLVO,
+    PORSCHE,
+    RELIANT_ROBIN,
+    MONARK,
+    CRESCENT
+}
+
+class Car @JsonCreator constructor(
+    @JsonProperty("id") id: Int,
+    @JsonProperty("brand") brand: Brand,
+    @JsonProperty("year") year: Int,
+    @JsonProperty("noWheels") val noWheels: Int = 4) : Vehicle<Car>(id, Type.CAR, brand, year
+)
+
+enum class Type {
+    CAR,
+    BICYCLE
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = Car::class, name = "CAR"),
+    JsonSubTypes.Type(value = Bicycle::class, name = "BICYCLE")
+)
+abstract class Vehicle<T : Vehicle<T>>(val id: Int, val type: Type, val brand: Brand, val year: Int) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Vehicle<*>
+
+        if (id != other.id) return false
+        if (type != other.type) return false
+        if (brand != other.brand) return false
+        if (year != other.year) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + type.hashCode()
+        result = 31 * result + brand.hashCode()
+        result = 31 * result + year
+        return result
+    }
 }
