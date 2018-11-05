@@ -8,7 +8,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -33,33 +34,50 @@ class VehicleControllerTest {
 
     @Test
     fun `get car by id`() {
-
         val car = Car(1, CarBrand.PORSCHE, 2018)
         whenever(this.carRepository.get(car.id)).thenReturn(car)
 
         val mvcResult = this.mvc.perform(MockMvcRequestBuilders.get("/{type}/id/{id}", Type.CAR, car.id)
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         assertThat(objectMapper.readValue<Car>(mvcResult.response.contentAsString)).isEqualTo(car)
     }
 
+    /**
+     * HTTPie: http POST http://localhost:8080/Car id='-1' type='CAR' year=1988 brand='VOLVO'
+     */
+    @Test
+    fun `add car`() {
+        val car = Car(-1, CarBrand.PORSCHE, 2018)
+        val createdCar = car.copy(id = 3)
+        whenever(this.carRepository.add(car)).thenReturn(createdCar)
+
+        val mvcResult = this.mvc.perform(MockMvcRequestBuilders.post("/Car")
+            .content(objectMapper.writeValueAsString(car))
+            .contentType(APPLICATION_JSON_UTF8)
+            .accept(APPLICATION_JSON_UTF8))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+        assertThat(objectMapper.readValue<Car>(mvcResult.response.contentAsString)).isEqualTo(createdCar)
+    }
+
     @Test
     fun `get all vehicles`() {
-
-        val car = Car(1, CarBrand.PORSCHE, 2018)
-        whenever(this.carRepository.all()).thenReturn(listOf(car))
+        val car1 = Car(1, CarBrand.PORSCHE, 2018)
+        val car2 = Car(2, CarBrand.VOLVO, 1972)
+        whenever(this.carRepository.all()).thenReturn(listOf(car1, car2))
 
         val bicycle = Bicycle(1, BicycleBrand.MONARK, 2018)
         whenever(this.bicycleRepository.all()).thenReturn(listOf(bicycle))
 
         val mvcResult = this.mvc.perform(MockMvcRequestBuilders.get("/vehicles")
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val vehicles = objectMapper.readValue<List<Vehicle<*>>>(mvcResult.response.contentAsString)
 
-        assertThat(vehicles).containsExactlyInAnyOrder(car, bicycle)
+        assertThat(vehicles).containsExactlyInAnyOrder(car1, car2, bicycle)
     }
 
 }

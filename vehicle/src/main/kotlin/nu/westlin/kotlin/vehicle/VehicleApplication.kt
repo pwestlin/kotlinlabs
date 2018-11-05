@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -21,16 +22,18 @@ import javax.servlet.http.HttpServletResponse
 
 
 @SpringBootApplication
-class DatabaseApplication
+class VehicleApplication
 
 fun main(args: Array<String>) {
-    runApplication<DatabaseApplication>(*args)
+    runApplication<VehicleApplication>(*args)
 }
 
 
 @RestController
 @RequestMapping("/")
-class VehicleController(private val carRepository: CarRepository, private val bicycleRepository: BicycleRepository) {
+class VehicleController(
+    private val carRepository: CarRepository,
+    private val bicycleRepository: BicycleRepository) {
 
     @GetMapping("/Type/{type}")
     fun getByType(@PathVariable type: Type, response: HttpServletResponse): List<Vehicle<*>> {
@@ -58,6 +61,12 @@ class VehicleController(private val carRepository: CarRepository, private val bi
         return carRepository.all().union(bicycleRepository.all()).toList()
     }
 
+    @PostMapping(path = ["Car"], consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    fun addCar(@RequestBody car: Car): Car {
+        println("body = $car")
+        return carRepository.add(car)
+    }
+
 }
 
 @Component
@@ -76,7 +85,7 @@ class TypeEnumConverter : Converter<String, Type> {
 
 interface VehicleRepository<T : Vehicle<T>> {
     fun all(): List<T>
-    fun add(vehicle: T)
+    fun add(vehicle: T): T
     fun get(id: Int): T?
 }
 
@@ -90,8 +99,15 @@ class CarRepository : VehicleRepository<Car> {
 
     override fun all() = cars.toList()
 
-    override fun add(vehicle: Car) {
-        cars.add(vehicle)
+    override fun add(vehicle: Car): Car {
+        val car = vehicle.copy(id = createId())
+        cars.add(car)
+        return car
+    }
+
+    private fun createId(): Int {
+        val max = cars.map { it.id }.max()
+        return if (max != null) max + 1 else 1
     }
 
     override fun get(id: Int) = cars.find { it.id == id }
@@ -106,8 +122,12 @@ class BicycleRepository : VehicleRepository<Bicycle> {
 
     override fun all() = bicycles.toList()
 
-    override fun add(vehicle: Bicycle) {
+    override fun add(vehicle: Bicycle): Bicycle {
+        TODO("Implement")
+/*
         bicycles.add(vehicle)
+        return vehicle
+*/
     }
 
     override fun get(id: Int) = bicycles.find { it.id == id }
@@ -135,13 +155,13 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
 
 }
 
-enum class CarBrand : VehicleBrand{
+enum class CarBrand : VehicleBrand {
     VOLVO,
     PORSCHE,
     RELIANT_ROBIN
 }
 
-enum class BicycleBrand : VehicleBrand{
+enum class BicycleBrand : VehicleBrand {
     MONARK,
     CRESCENT
 }
