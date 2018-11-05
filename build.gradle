@@ -20,7 +20,6 @@ plugins {
 
 
 allprojects {
-
     apply plugin: 'kotlin'
     apply plugin: 'idea'
 

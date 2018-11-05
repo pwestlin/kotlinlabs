@@ -11,7 +11,7 @@ class BicycleJsonTest {
 
     @Test
     fun `serialize and deserialize car`() {
-        val bicycle = Bicycle(id = 1, brand = Brand.PORSCHE, year = 1967)
+        val bicycle = Bicycle(id = 1, brand = BicycleBrand.CRESCENT, year = 1967)
         val json = objectMapper.writeValueAsString(bicycle)
         println("json = $json")
 

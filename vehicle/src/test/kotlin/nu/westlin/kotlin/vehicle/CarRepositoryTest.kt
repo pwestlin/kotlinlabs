@@ -21,7 +21,7 @@ class CarRepositoryTest {
 
     @Test
     fun `add car`() {
-        val car = Car(5, Brand.PORSCHE, 1981)
+        val car = Car(5, CarBrand.PORSCHE, 1981)
         repository.add(car)
         assertThat(repository.cars).contains(car)
     }

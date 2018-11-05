@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import javax.inject.Inject
 
 @RunWith(SpringRunner::class)
@@ -35,22 +34,23 @@ class VehicleControllerTest {
     @Test
     fun `get car by id`() {
 
-        val car = Car(1, Brand.PORSCHE, 2018)
+        val car = Car(1, CarBrand.PORSCHE, 2018)
         whenever(this.carRepository.get(car.id)).thenReturn(car)
 
-        this.mvc.perform(MockMvcRequestBuilders.get("/car/{id}", car.id)
+        val mvcResult = this.mvc.perform(MockMvcRequestBuilders.get("/{type}/id/{id}", Type.CAR, car.id)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(content().json(objectMapper.writeValueAsString(car)))
+            .andReturn()
+        assertThat(objectMapper.readValue<Car>(mvcResult.response.contentAsString)).isEqualTo(car)
     }
 
     @Test
     fun `get all vehicles`() {
 
-        val car = Car(1, Brand.PORSCHE, 2018)
+        val car = Car(1, CarBrand.PORSCHE, 2018)
         whenever(this.carRepository.all()).thenReturn(listOf(car))
 
-        val bicycle = Bicycle(1, Brand.MONARK, 2018)
+        val bicycle = Bicycle(1, BicycleBrand.MONARK, 2018)
         whenever(this.bicycleRepository.all()).thenReturn(listOf(bicycle))
 
         val mvcResult = this.mvc.perform(MockMvcRequestBuilders.get("/vehicles")

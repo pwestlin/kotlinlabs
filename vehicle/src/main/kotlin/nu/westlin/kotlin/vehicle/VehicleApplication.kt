@@ -6,11 +6,14 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import nu.westlin.kotlin.vehicle.Brand.*
+import nu.westlin.kotlin.vehicle.CarBrand.*
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
@@ -37,7 +40,8 @@ class VehicleController(private val carRepository: CarRepository, private val bi
         }
     }
 
-    @GetMapping("/Type/{type}/id/{id}")
+    // TODO petves: CAR -> Car
+    @GetMapping("/{type}/id/{id}")
     fun getByTypeAndId(@PathVariable type: Type, @PathVariable id: Int, response: HttpServletResponse): Vehicle<*>? {
         val vehicle = when (type) {
             Type.CAR -> carRepository.get(id)
@@ -45,15 +49,6 @@ class VehicleController(private val carRepository: CarRepository, private val bi
         }
         if (vehicle == null) response.status = HttpStatus.NOT_FOUND.value()
         return vehicle
-    }
-
-    @GetMapping("car/{id}")
-    // TODO petves: 404 if null?
-    fun getCar(@PathVariable id: Int, response: HttpServletResponse): Car? {
-        val car = carRepository.get(id)
-        if (car == null) response.status = HttpStatus.NOT_FOUND.value()
-
-        return car
     }
 
     @GetMapping("cars")
@@ -66,7 +61,20 @@ class VehicleController(private val carRepository: CarRepository, private val bi
 
 }
 
-// TODO petves: Interface?
+@Component
+class TypeEnumConverter : Converter<String, Type> {
+    private val logger = LoggerFactory.getLogger(this.javaClass)!!
+
+    override fun convert(source: String): Type {
+        try {
+            return Type.valueOf(source.toUpperCase())
+        } catch (e: IllegalArgumentException) {
+            logger.error("Type '$source' is not a valid type", e)
+            throw e
+        }
+    }
+}
+
 interface VehicleRepository<T : Vehicle<T>> {
     fun all(): List<T>
     fun add(vehicle: T)
@@ -92,26 +100,28 @@ class CarRepository : VehicleRepository<Car> {
 
 @Repository
 class BicycleRepository : VehicleRepository<Bicycle> {
-    val cars = mutableListOf(
-        Bicycle(id = 1, brand = MONARK, year = 1987),
-        Bicycle(id = 2, brand = CRESCENT, year = 1962)
+    val bicycles = mutableListOf(
+        Bicycle(id = 1, brand = BicycleBrand.MONARK, year = 1987),
+        Bicycle(id = 2, brand = BicycleBrand.CRESCENT, year = 1962)
     )
 
-    override fun all() = cars.toList()
+    override fun all() = bicycles.toList()
 
     override fun add(vehicle: Bicycle) {
-        cars.add(vehicle)
+        bicycles.add(vehicle)
     }
 
-    override fun get(id: Int) = cars.find { it.id == id }
+    override fun get(id: Int) = bicycles.find { it.id == id }
 }
 
-class Bicycle @JsonCreator constructor(
-    @JsonProperty("id") id: Int,
-    @JsonProperty("brand") brand: Brand,
-    @JsonProperty("year") year: Int,
-    @JsonProperty("noWheels") val noWheels: Int = 2) : Vehicle<Bicycle>(id, Type.BICYCLE, brand, year
-)
+data class Bicycle @JsonCreator constructor(
+    @JsonProperty("id") override val id: Int,
+    @JsonProperty("brand") override val brand: BicycleBrand,
+    @JsonProperty("year") override val year: Int,
+    @JsonProperty("noWheels") val noWheels: Int = 2) : Vehicle<Bicycle> {
+    override val type: Type
+        get() = Type.BICYCLE
+}
 
 @ControllerAdvice
 class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
@@ -126,21 +136,28 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
 
 }
 
-// TODO petves: Cars an bicycles mixed is bad. :)
-enum class Brand {
+enum class CarBrand : VehicleBrand{
     VOLVO,
     PORSCHE,
-    RELIANT_ROBIN,
+    RELIANT_ROBIN
+}
+
+enum class BicycleBrand : VehicleBrand{
     MONARK,
     CRESCENT
 }
 
-class Car @JsonCreator constructor(
-    @JsonProperty("id") id: Int,
-    @JsonProperty("brand") brand: Brand,
-    @JsonProperty("year") year: Int,
-    @JsonProperty("noWheels") val noWheels: Int = 4) : Vehicle<Car>(id, Type.CAR, brand, year
-)
+interface VehicleBrand
+
+data class Car @JsonCreator constructor(
+    @JsonProperty("id") override val id: Int,
+    @JsonProperty("brand") override val brand: CarBrand,
+    @JsonProperty("year") override val year: Int,
+    @JsonProperty("noWheels") val noWheels: Int = 4) : Vehicle<Car> {
+    override val type: Type
+        get() = Type.CAR
+}
+
 
 enum class Type {
     CAR,
@@ -152,26 +169,9 @@ enum class Type {
     JsonSubTypes.Type(value = Car::class, name = "CAR"),
     JsonSubTypes.Type(value = Bicycle::class, name = "BICYCLE")
 )
-abstract class Vehicle<T : Vehicle<T>>(val id: Int, val type: Type, val brand: Brand, val year: Int) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Vehicle<*>
-
-        if (id != other.id) return false
-        if (type != other.type) return false
-        if (brand != other.brand) return false
-        if (year != other.year) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + type.hashCode()
-        result = 31 * result + brand.hashCode()
-        result = 31 * result + year
-        return result
-    }
+interface Vehicle<T : Vehicle<T>> {
+    val id: Int
+    val type: Type
+    val brand: VehicleBrand
+    val year: Int
 }
