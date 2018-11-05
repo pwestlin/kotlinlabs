@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -61,10 +61,19 @@ class VehicleController(
         return carRepository.all().union(bicycleRepository.all()).toList()
     }
 
-    @PostMapping(path = ["Car"], consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @PostMapping(path = ["Car"], consumes = [APPLICATION_JSON_UTF8_VALUE])
     fun addCar(@RequestBody car: Car): Car {
         println("body = $car")
         return carRepository.add(car)
+    }
+
+    @PostMapping(path = ["Vehicle"], consumes = [APPLICATION_JSON_UTF8_VALUE])
+    fun addVehicle(@RequestBody vehicle: Vehicle<*>): Vehicle<*> {
+        return when(vehicle) {
+            is Car ->  carRepository.add(vehicle)
+            is Bicycle ->  bicycleRepository.add(vehicle)
+            else -> throw IllegalArgumentException("Vehicle of type ${vehicle.javaClass} is not a valid vehicle")
+        }
     }
 
 }
@@ -123,11 +132,14 @@ class BicycleRepository : VehicleRepository<Bicycle> {
     override fun all() = bicycles.toList()
 
     override fun add(vehicle: Bicycle): Bicycle {
-        TODO("Implement")
-/*
-        bicycles.add(vehicle)
-        return vehicle
-*/
+        val car = vehicle.copy(id = createId())
+        bicycles.add(car)
+        return car
+    }
+
+    private fun createId(): Int {
+        val max = bicycles.map { it.id }.max()
+        return if (max != null) max + 1 else 1
     }
 
     override fun get(id: Int) = bicycles.find { it.id == id }

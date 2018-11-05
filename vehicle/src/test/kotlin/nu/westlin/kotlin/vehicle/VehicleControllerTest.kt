@@ -62,6 +62,24 @@ class VehicleControllerTest {
         assertThat(objectMapper.readValue<Car>(mvcResult.response.contentAsString)).isEqualTo(createdCar)
     }
 
+    /**
+     * HTTPie: http POST http://localhost:8080/Vehicle id='-1' type='BICYCLE' year=1988 brand='MONARK'
+     */
+    @Test
+    fun `add vehicle`() {
+        val bicycle = Bicycle(-1, BicycleBrand.CRESCENT, 2018)
+        val createdBicycle= bicycle.copy(id = 3)
+        whenever(this.bicycleRepository.add(bicycle)).thenReturn(createdBicycle)
+
+        val mvcResult = this.mvc.perform(MockMvcRequestBuilders.post("/Vehicle")
+            .content(objectMapper.writeValueAsString(bicycle))
+            .contentType(APPLICATION_JSON_UTF8)
+            .accept(APPLICATION_JSON_UTF8))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+        assertThat(objectMapper.readValue<Bicycle>(mvcResult.response.contentAsString)).isEqualTo(createdBicycle)
+    }
+
     @Test
     fun `get all vehicles`() {
         val car1 = Car(1, CarBrand.PORSCHE, 2018)
