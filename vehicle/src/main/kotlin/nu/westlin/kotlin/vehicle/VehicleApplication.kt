@@ -40,7 +40,6 @@ class VehicleController(private val carRepository: CarRepository, private val bi
         }
     }
 
-    // TODO petves: CAR -> Car
     @GetMapping("/{type}/id/{id}")
     fun getByTypeAndId(@PathVariable type: Type, @PathVariable id: Int, response: HttpServletResponse): Vehicle<*>? {
         val vehicle = when (type) {
