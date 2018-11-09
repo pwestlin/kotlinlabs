@@ -21,3 +21,6 @@ Inheritance and generics
 
 ## javainterop
 [Interoperanility with Java](https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html)
+
+## jaxb
+JAXB serialization and deserialization
