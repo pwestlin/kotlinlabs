@@ -18,3 +18,6 @@ Testing [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-frame
 
 ## vehicle
 Inheritance and generics
+
+## javainterop
+[Interoperanility with Java](https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html)
