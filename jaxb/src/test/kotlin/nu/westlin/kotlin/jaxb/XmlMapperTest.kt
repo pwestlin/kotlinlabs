@@ -17,7 +17,9 @@ class XmlMapperTest {
 
         val statusFromXml = xmlMapper.from<Status>(xml)
         println("statusFromXml = $statusFromXml")
-        assertThat(statusFromXml).isEqualTo(status)
+        //assertThat(statusFromXml).isEqualTo(status)
+        assertThat(statusFromXml.id).isEqualTo(status.id)
+        assertThat(statusFromXml.status).isEqualTo(status.status)
     }
 
 }

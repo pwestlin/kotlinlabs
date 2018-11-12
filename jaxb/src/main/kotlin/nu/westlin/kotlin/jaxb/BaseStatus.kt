@@ -5,10 +5,10 @@ import javax.xml.bind.annotation.XmlAccessorType
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlType
 
-@XmlRootElement(name = "Status")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = ["id", "status"])
-class Status(id: Int, val status: String): BaseStatus(id) {
+@XmlType(propOrder = ["id"])
+abstract class BaseStatus(val id: Int) {
     @Suppress("unused")
-    private constructor() : this(id = -1, status = "")  // För JAXB
+    private constructor() : this(id = -1)  // För JAXB
 }
