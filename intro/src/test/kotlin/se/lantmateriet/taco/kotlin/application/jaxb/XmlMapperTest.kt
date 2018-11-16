@@ -3,18 +3,8 @@ package se.lantmateriet.taco.kotlin.application.jaxb
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-import org.junit.runner.RunWith
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
-import javax.inject.Inject
-
-@RunWith(SpringRunner::class)
-@SpringBootTest
 class XmlMapperTest {
-
-    @Inject
-    lateinit var xmlMapper: XmlMapper
-
+    val xmlMapper = XmlMapper()
     val movie = ActionMovie(-1, "Top Secret!", 1984)
 
     @Test

@@ -7,8 +7,11 @@ import org.junit.jupiter.api.Test
 
 class EqualityTest {
 
+    // == är samma som equals i Java
+    // === är "samma objektreferens"
     @Test
     fun `equality Checks`() {
+        // Med data classes får man automatiskt equals/hashCode
         data class Car(val brand: String, val model: String, val year: String)
 
         val car = Car("Volvo", "PV", "1970")
@@ -28,7 +31,7 @@ class EqualityTest {
 
         val isNull = null
         val isNotNull = "foo"
-        assertThat(isNull == isNotNull).isFalse()
+        assertThat(isNull == isNotNull).isFalse()   // == funkar alltså på null utan att ge NPE :)
     }
 
 

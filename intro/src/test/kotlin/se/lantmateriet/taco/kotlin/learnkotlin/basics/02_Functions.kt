@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test
 
 class FunctionsTest {
 
+
+    // I Kotlin heter det inte metod utan funktion - därav fun
+    fun function() {}
+
     @Test
     fun `ja, en funktion kan faktiskt namnges så här`() {
         // ...men bara i tester är detta acceptabelt!
@@ -40,10 +44,14 @@ class FunctionsTest {
 
         // Returtypen void saknas i Kotlin, den kallas istället Unit och kan utelämnas vid deklaration.
         assertThat(voidFunctionOrWhat()).isInstanceOf(Unit::class.java)
+
+        // Det finns även en returtyp Nothing men den tar vi i Kodsnacket "Advanced Kotlin" :)
     }
 
     @Test
     fun varargs() {
+        // I Java anger man varargs som "..."
+        // I Kotlin har varargs ett eget keyword
         fun concat(vararg strings: String): String {
             return strings.joinToString(" ")
         }
@@ -59,10 +67,25 @@ class FunctionsTest {
         assertThat(multiply(5)).isEqualTo(10)
 
         // Jfr med Javas overloaded methods som anropar varandra
+        /*
+        int multiply(int a, int b) {
+            return a * b
+        }
+        int multiply(int a) {
+            return multiply(a, 2)
+        }
+        */
     }
 
     @Test
     fun `named parameters`() {
+        fun division(taljare: Int, namnare: Int) = taljare/namnare
+
+        assertThat(division(10, 2)).isEqualTo(5)
+        assertThat(division(taljare = 10, namnare = 2)).isEqualTo(5)
+        assertThat(division(namnare = 2, taljare = 10)).isEqualTo(5)
+
+
         fun reformat(string: String, reverse: Boolean = false, upperCase: Boolean = false): String {
             var formatted = string
             if (reverse) {
@@ -115,6 +138,7 @@ class FunctionsTest {
 
 
 
+// "Message: $message" -> String template
 fun topLevelFunctionUtil(message: String) { println("Message: $message")}
 
 object ObjectUtil {

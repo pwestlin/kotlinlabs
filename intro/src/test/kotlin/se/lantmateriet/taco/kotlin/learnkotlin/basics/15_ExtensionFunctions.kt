@@ -5,6 +5,7 @@ package se.lantmateriet.taco.kotlin.learnkotlin.basics
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
+
 class ExtensionFunctionsTest {
 
     // Här börjar det bli fränt på riktigt!
@@ -21,12 +22,19 @@ class ExtensionFunctionsTest {
 
     }
 
-
     // Ni vet den där klassen StringUtils eller DateUtils som man ALLTID har i VARJE projekt?
     // ...den behövs inte längre för man kan använda extension functions istället. :)
 
     // ...men använd dem klokt!
 
     // Extension functions är också ett sätt att hålla klasser (läs API) väldigt enkla.
-    // Man kan lägga önskade funktioner/operation på en klass i en egen modul för att separera saker.
+    // Man kan lägga önskade funktioner/operationer på en klass i en egen modul för att separera saker.
+
+    @Test
+    fun `extension properties`() {
+        assertThat("Foobar".lastChar).isEqualTo('r')
+    }
 }
+
+val String.lastChar: Char
+    get() = this.toCharArray().last()

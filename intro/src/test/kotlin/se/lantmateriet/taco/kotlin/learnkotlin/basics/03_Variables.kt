@@ -11,9 +11,6 @@ class VariablesTest {
         // Definiera varibel av typen int
         val i: Int = 5
         // Definiera varibel av typen int mha type inference
-        val ii = 5
-
-        // En till Int med automatisk typ Int
         val j = 5
 
         val k = 7

@@ -16,11 +16,11 @@ class LambdasTest {
 
             // it?
             assertThat(list.last({ it.length == 6 })).isEqualTo("Kotlin")
-            // samma som ovan men it är namnsatt till item
-            assertThat(list.last({ item -> item.length == 6 })).isEqualTo("Kotlin")
+            // samma som ovan men it är namnsatt till string
+            assertThat(list.last({ string -> string.length == 6 })).isEqualTo("Kotlin")
 
             // Om den sista parametern til en funktion är ett lambda
-            // kan det flyttas ut ur paranteserna
+            // kan (och ska enligt god sed) den flyttas ut ur paranteserna
             assertThat(list.last { it.length == 6 }).isEqualTo("Kotlin")
         }
 
@@ -30,23 +30,6 @@ class LambdasTest {
         }
 
         // filter, map, first, groupBy, let, apply osv osv osv osv osv....
-    }
-
-    @Test
-    fun `when does a lambda run?`() {
-        // TODO petves: Bra exempel på att ett lambda körs "sen" :)
-
-        fun division(namnare: Int, taljare: Int): Int {
-            try {
-                return taljare / namnare
-            } catch (e: Throwable) {
-                println("Det gick inte att dela $taljare med $namnare")
-                throw e
-            }
-        }
-
-        division(3, 1)
-        division(3, 0)
     }
 
     @Test
@@ -67,4 +50,20 @@ class LambdasTest {
     }
 
 
+    @Test
+    fun `when does a lambda run?`() {
+        // TODO petves: Bra exempel på att ett lambda körs "sen" :)
+
+        fun division(namnare: Int, taljare: Int): Int {
+            try {
+                return taljare / namnare
+            } catch (e: Throwable) {
+                println("Det gick inte att dela $taljare med $namnare")
+                throw e
+            }
+        }
+
+        division(3, 1)
+        division(3, 0)
+    }
 }

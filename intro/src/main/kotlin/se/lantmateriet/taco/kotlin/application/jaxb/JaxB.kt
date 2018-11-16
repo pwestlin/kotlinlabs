@@ -38,7 +38,7 @@ class XmlMapper {
     private val unmarshaller: Unmarshaller
 
     init {
-        val jaxbContext = JAXBContext.newInstance(Movie::class.java)
+        val jaxbContext = JAXBContext.newInstance(ActionMovie::class.java)
         this.marshaller = jaxbContext.createMarshaller()
         this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
         //this.marshaller.setProperty(MarshallerProperties.BEAN_VALIDATION_MODE, BeanValidationMode.NONE)

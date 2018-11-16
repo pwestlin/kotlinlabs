@@ -11,12 +11,12 @@ class DataClassesTest {
     fun `classes and objects - data classes`() {
         data class Person(val name: String, val age: Int)
 
-        val person = Person("Peter", 46)
-        println("person = ${person}")
+        val person = Person("Jürgen", 50)
+        println("person = $person")
         println("${person.name} är ${person.age} år gam...ung")
 
-        assertThat(person.name).isEqualTo("Peter")
-        assertThat(person.age).isEqualTo(46)
+        assertThat(person.name).isEqualTo("Jürgen")
+        assertThat(person.age).isEqualTo(50)
 
         val person2 = person.copy()
         // equals (and hashCode) är automatgenererade

@@ -18,9 +18,13 @@ class NullsTest {
         var nullableString: String? = "b"
         nullableString = null
 
+        // !! -> Ge mig värdet i variabeln för jag VET att det inte är null
         assertThatThrownBy { nullableString!!.length }
             .isInstanceOf(KotlinNullPointerException::class.java)
             .hasMessage(null)
+
+        // null-hanteringen i Kotlin finns egentligen bara till pga att den ska
+        // vara Java-kompatibel
     }
 
     @Test
@@ -54,7 +58,9 @@ class NullsTest {
         assertThat(getCustomerStreetAddress(Customer(2, Person(Address())))).isNull()
         assertThat(getCustomerStreetAddress(Customer(3, Person(Address("Lantmäterigatan"))))).isEqualTo("Lantmäterigatan")
 
-        //return customer?.person?.address?.street
+        val customer: Customer? = null
+        assertThat(customer?.person?.address?.street).isNull()
+
 
         val files = File("/asfgsdhd/cvhndf/jmfghjern").listFiles()    // listFiles() returnerar null om inte pathen kan hittas
         assertThat(files).isNull()
@@ -66,7 +72,11 @@ class NullsTest {
         assertThat(files?.size).isNull()
         println(files?.size)    // Java: if(files != null) {System.out.println(files.size)}
 
-        println(files?.size ?: "empty")     // Java: *puh*
+        assertThat(files?.size ?: "empty").isEqualTo("empty")   // Java: *puh*
+
+        // Vi hade kunnat göra det snyggare genom att från början:
+        // val files:Array<File>? = File("/asfgsdhd/cvhndf/jmfghjern").listFiles()    // listFiles() returnerar null om inte pathen kan hittas
+
 
         var value: String? = null
         value?.let {

@@ -6,7 +6,10 @@ import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.*
+import org.springframework.http.HttpStatus.BAD_GATEWAY
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.OK
+import org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE
 
 class WhenTest {
 
@@ -19,7 +22,7 @@ class WhenTest {
             when (obj) {
                 1 -> "One"
                 "Hello" -> "Greeting"
-                is Long -> "Long"
+                is Long -> "Long"       // is => Javas cast: (Fastighet) utbytesobjekt
                 !is String -> "Not a string"
                 else -> "Unknown"
             }

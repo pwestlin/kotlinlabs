@@ -21,14 +21,19 @@ class ClassesTest {
         assertThat(car.brand).isEqualTo("Volvo")
         assertThat(car.name).isEqualTo("Skrothögen")
 
-        println("car = ${car}")
+        println("car = $car")
+
+        // Kommer ni ihåg "named parameters" för funktioner? De funkar även i konstruktorer
+        val varstaGussenPaBussen = Car(brand = "Ford", name = "Röda Faran")
+        assertThat(varstaGussenPaBussen.brand).isEqualTo("Ford")
+        assertThat(varstaGussenPaBussen.name).isEqualTo("Röda Faran")
     }
 
     @Test
     fun inheritance() {
-        // Klasser är final by default som man måste märka dem med "open" vid arv
+        // Klasser är final by default så man måste märka dem med "open" vid arv
         open class Animal(val noLegs: Int) {
-            // Metoder är också final by default
+            // Metoder är också final by default - och public
             open fun sound() = "Schhh"
         }
 
@@ -50,6 +55,11 @@ class ClassesTest {
 
 
         //class Salmon : Fish       // Hä gånt nå för Fish är final (by default)
+
+
+        // Abstrakta klasser är (självklart) inte final och behöver således inte ha open
+        abstract class Vehicle
+        class Boat : Vehicle()
     }
 
 }
