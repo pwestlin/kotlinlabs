@@ -33,6 +33,6 @@ Things that I like to try:
 * More on [Higher-Order Functions and Lambdas in Kotlin](https://kotlinlang.org/docs/reference/lambdas.html)
 * [Kotlin-React](https://medium.com/@ralf.stuckert/getting-started-with-kotlin-react-c5f3b079a8bf)
 * [jOOQ with Kotlin](https://www.jooq.org/doc/3.11/manual/getting-started/jooq-and-kotlin/)
-- https://blog.jooq.org/tag/kotlin/
-- https://blog.jooq.org/2017/05/18/10-nice-examples-of-writing-sql-in-kotlin-with-jooq/
+  * https://blog.jooq.org/tag/kotlin/
+  * https://blog.jooq.org/2017/05/18/10-nice-examples-of-writing-sql-in-kotlin-with-jooq/
 * etc
