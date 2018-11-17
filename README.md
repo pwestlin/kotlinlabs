@@ -17,7 +17,7 @@ Just playing around with Kotlin misc features
 Testing [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html)
 
 ## vehicle
-Inheritance and generics
+[Inheritance](https://kotlinlang.org/docs/reference/classes.html) and [generics](https://kotlinlang.org/docs/reference/generics.html)
 
 ## javainterop
 [Interoperanility with Java](https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html)
