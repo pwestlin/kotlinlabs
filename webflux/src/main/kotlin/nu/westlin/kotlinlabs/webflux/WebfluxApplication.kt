@@ -7,7 +7,12 @@ import org.springframework.boot.runApplication
 import org.springframework.http.MediaType
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Repository
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -27,25 +32,25 @@ fun main(args: Array<String>) {
 class MovieController(private val movieRepository: MovieRepository) {
 
     @GetMapping("movie/{id}")
-    fun get(@PathVariable id: Int) = Mono.justOrEmpty(movieRepository.get(id))
+    fun get(@PathVariable id: Int) = movieRepository.get(id)
 
     @GetMapping(path = ["movies"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
-    fun getAll() = Flux.fromIterable(movieRepository.getAll())
+    fun getAll() = movieRepository.getAll()
 
     @GetMapping(path = ["/movieTip"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun movieTip(): Flux<Movie> {
-        return Flux.interval(Duration.ofSeconds(1))
-            .map { movieRepository.randomMovie() }
+        return movieRepository.randomMovie()
     }
 
     @GetMapping("/movieTip-sse")
     fun streamEvents(): Flux<ServerSentEvent<Movie>> {
-        return Flux.interval(Duration.ofSeconds(1))
+        var counter = 0
+        return movieRepository.randomMovie()
             .map { sequence ->
                 ServerSentEvent.builder<Movie>()
-                    .id(sequence.toString())
+                    .id((counter++).toString())
                     .event("periodic-event")
-                    .data(movieRepository.randomMovie())
+                    .data(Movie(sequence.id, sequence.title, sequence.year))
                     .build()
             }
     }
@@ -61,7 +66,7 @@ class MovieController(private val movieRepository: MovieRepository) {
 }
 
 @Repository
-class MovieRepository() {
+class MovieRepository {
     private val movies = mutableListOf(
         Movie(1, "Top Secret", 1984),
         Movie(2, "Spaceballs", 1987),
@@ -69,12 +74,12 @@ class MovieRepository() {
         Movie(4, "Days of Thunder", 1988)
     )
 
-    fun getAll(): List<Movie> {
-        return movies.toList()
+    fun getAll(): Flux<Movie> {
+        return Flux.fromIterable(movies.toList())
     }
 
-    fun get(id: Int): Movie? {
-        return movies.single { it.id == id }
+    fun get(id: Int): Mono<Movie> {
+        return Mono.justOrEmpty(movies.single { it.id == id })
     }
 
     fun get(predicate: (Movie) -> Boolean): List<Movie> {
@@ -103,8 +108,9 @@ class MovieRepository() {
 
     fun getAllAfterYear(year: Int): List<Movie> = movies.filter { it.year > year }
 
-    fun randomMovie(): Movie {
-        return movies[Random.nextInt(movies.size)]
+    fun randomMovie(): Flux<Movie> {
+        return Flux.interval(Duration.ofSeconds(1))
+            .map { movies[Random.nextInt(movies.size)] }
     }
 
 }

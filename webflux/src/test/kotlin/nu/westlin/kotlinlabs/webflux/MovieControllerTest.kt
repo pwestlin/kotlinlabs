@@ -2,12 +2,13 @@ package nu.westlin.kotlinlabs.webflux
 
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType.*
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
+import org.springframework.http.MediaType.TEXT_EVENT_STREAM
+import org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -15,6 +16,8 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.expectBodyList
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
+import reactor.core.publisher.toFlux
+import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
 import javax.inject.Inject
 
@@ -37,7 +40,7 @@ class MovieControllerTest {
     @Test
     fun `get movie by id`() {
         val movie = movies.first()
-        whenever(repository.get(movie.id)).thenReturn(movies.find { it.id == movie.id })
+        whenever(repository.get(movie.id)).thenReturn(movies.find { it.id == movie.id }?.toMono())
 
         client
             .get()
@@ -51,7 +54,7 @@ class MovieControllerTest {
 
     @Test
     fun `list all movies`() {
-        whenever(repository.getAll()).thenReturn(movies)
+        whenever(repository.getAll()).thenReturn(movies.toFlux())
 
         client
             .get()
@@ -65,12 +68,9 @@ class MovieControllerTest {
     }
 
     @Test
-    @Ignore("Can't make this work :|")
     fun `stream movie tips - SSE`() {
         whenever(repository.randomMovie())
-            .thenReturn(movies[0])
-            .thenReturn(movies[1])
-            .thenReturn(movies[2])
+            .thenReturn(movies.subList(0, 3).toFlux())
 
         val result = client
             .get()
@@ -82,29 +82,36 @@ class MovieControllerTest {
             .returnResult<ServerSentEvent<Movie>>()
         val body = result.responseBody
         StepVerifier.create(body)
-            .assertNext {
-                assertThat(it.id()).isEqualTo("0")
-                assertThat(it.event()).isEqualTo("periodic-event")
-                val movie = it.data()!!
-                assertThat(movie).isEqualTo(movies[0])
-                //assertThat(it.data()!!).isEqualTo(movies[0])
-                assertThat(it.comment()).isNull()
+            .expectNextMatches {
+                it.id() == "0" && assertMovie(it.data()!!, movies[0])
             }
-/*
-            .expectNext(movies[0])
-            .expectNext(movies[1])
-            .expectNext(movies[2])
-*/
+            .expectNextMatches {
+                it.id() == "1"
+            }
+            .expectNextMatches {
+                it.id() == "2"
+            }
             .thenCancel()
             .verify()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun assertMovie(actual: Any, expected: Movie): Boolean {
+        // For some reason I get not a Movie but a LinkedHashMap<String, String> with the properties from Movie here.
+        // I guess it is a Spring config-thing.
+        val map = actual as LinkedHashMap<String, Any>
+
+        assertThat(map["id"] as Int).isEqualTo(expected.id)
+        assertThat(map["title"] as String).isEqualTo(expected.title)
+        assertThat(map["year"] as Int).isEqualTo(expected.year)
+
+        return true
     }
 
     @Test
     fun `stream movie tips`() {
         whenever(repository.randomMovie())
-            .thenReturn(movies[0])
-            .thenReturn(movies[1])
-            .thenReturn(movies[2])
+            .thenReturn(movies.subList(0, 3).toFlux())
 
         val result = client
             .get()

@@ -2,6 +2,7 @@
 
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -10,6 +11,44 @@ import kotlin.system.measureNanoTime
 // https://blog.kotlin-academy.com/effective-kotlin-use-sequence-for-bigger-collections-with-more-than-one-processing-step-649a15bb4bf
 
 class SequencesTest {
+
+    @Test
+    fun `map a collection`() {
+        var mapCount = 0
+        var filterCount = 0
+        val result = listOf(1, 2, 3, 4, 5)
+            .map { n ->
+                println("mapping $n")
+                mapCount++
+                n * n }
+            .filter {n ->
+                println("filtering $n")
+                filterCount++
+                n < 10 }
+            .first()
+
+        assertThat(mapCount).isEqualTo(5)
+        assertThat(filterCount).isEqualTo(5)
+    }
+
+    @Test
+    fun `map a collection using sequence`() {
+        var mapCount = 0
+        var filterCount = 0
+        val result = listOf(1, 2, 3, 4, 5).asSequence()
+            .map { n ->
+                println("mapping $n")
+                mapCount++
+                n * n }
+            .filter {n ->
+                println("filtering $n")
+                filterCount++
+                n < 10 }
+            .first()
+
+        assertThat(mapCount).isEqualTo(1)
+        assertThat(filterCount).isEqualTo(1)
+    }
 
     @Test
     fun sequence() {
