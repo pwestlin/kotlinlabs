@@ -16,6 +16,7 @@ class CarJsonTest {
         println("json = $json")
 
         val convertedCar = objectMapper.readValue<Car>(json)
+        assertThat(convertedCar).isEqualTo(car)
 
         assertThat(objectMapper.writeValueAsString(convertedCar)).isEqualTo(json)
     }

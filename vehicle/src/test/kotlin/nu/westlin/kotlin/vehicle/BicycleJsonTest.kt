@@ -16,6 +16,7 @@ class BicycleJsonTest {
         println("json = $json")
 
         val convertedBicycle = objectMapper.readValue<Bicycle>(json)
+        assertThat(convertedBicycle).isEqualTo(bicycle)
 
         assertThat(objectMapper.writeValueAsString(convertedBicycle)).isEqualTo(json)
     }

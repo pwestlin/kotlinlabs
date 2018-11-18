@@ -2,11 +2,12 @@
 
 package nu.westlin.kotlin.vehicle
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import nu.westlin.kotlin.vehicle.CarBrand.*
+import nu.westlin.kotlin.vehicle.CarBrand.PORSCHE
+import nu.westlin.kotlin.vehicle.CarBrand.RELIANT_ROBIN
+import nu.westlin.kotlin.vehicle.CarBrand.VOLVO
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -16,7 +17,15 @@ import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.ControllerAdvice
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import javax.servlet.http.HttpServletResponse
 
@@ -69,9 +78,9 @@ class VehicleController(
 
     @PostMapping(path = ["Vehicle"], consumes = [APPLICATION_JSON_UTF8_VALUE])
     fun addVehicle(@RequestBody vehicle: Vehicle<*>): Vehicle<*> {
-        return when(vehicle) {
-            is Car ->  carRepository.add(vehicle)
-            is Bicycle ->  bicycleRepository.add(vehicle)
+        return when (vehicle) {
+            is Car -> carRepository.add(vehicle)
+            is Bicycle -> bicycleRepository.add(vehicle)
             else -> throw IllegalArgumentException("Vehicle of type ${vehicle.javaClass} is not a valid vehicle")
         }
     }
@@ -145,7 +154,7 @@ class BicycleRepository : VehicleRepository<Bicycle> {
     override fun get(id: Int) = bicycles.find { it.id == id }
 }
 
-data class Bicycle @JsonCreator constructor(
+data class Bicycle(
     @JsonProperty("id") override val id: Int,
     @JsonProperty("brand") override val brand: BicycleBrand,
     @JsonProperty("year") override val year: Int,
@@ -180,7 +189,7 @@ enum class BicycleBrand : VehicleBrand {
 
 interface VehicleBrand
 
-data class Car @JsonCreator constructor(
+data class Car(
     @JsonProperty("id") override val id: Int,
     @JsonProperty("brand") override val brand: CarBrand,
     @JsonProperty("year") override val year: Int,
