@@ -95,19 +95,6 @@ class MovieControllerTest {
             .verify()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun assertMovie(actual: Any, expected: Movie): Boolean {
-        // For some reason I get not a Movie but a LinkedHashMap<String, String> with the properties from Movie here.
-        // I guess it is a Spring config-thing.
-        val map = actual as LinkedHashMap<String, Any>
-
-        assertThat(map["id"] as Int).isEqualTo(expected.id)
-        assertThat(map["title"] as String).isEqualTo(expected.title)
-        assertThat(map["year"] as Int).isEqualTo(expected.year)
-
-        return true
-    }
-
     @Test
     fun `stream movie tips`() {
         whenever(repository.randomMovie())
@@ -164,4 +151,16 @@ class MovieControllerTest {
             .contains(createdMovie)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    private fun assertMovie(actual: Any, expected: Movie): Boolean {
+        // For some reason I get not a Movie but a LinkedHashMap<String, String> with the properties from Movie here.
+        // I guess it is a Spring config-thing.
+        val map = actual as LinkedHashMap<String, Any>
+
+        assertThat(map["id"] as Int).isEqualTo(expected.id)
+        assertThat(map["title"] as String).isEqualTo(expected.title)
+        assertThat(map["year"] as Int).isEqualTo(expected.year)
+
+        return true
+    }
 }

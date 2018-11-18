@@ -1,7 +1,6 @@
 package nu.westlin.kotlinlabs.webflux
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.http.MediaType
@@ -115,8 +114,9 @@ class MovieRepository {
 
 }
 
-data class Movie @JsonCreator constructor(
-    @JsonProperty("id") val id: Int,
-    @JsonProperty("title") val title: String,
-    @JsonProperty("year") val year: Int
+@JsonPropertyOrder("id", "title", "year")
+data class Movie constructor(
+    val id: Int,
+    val title: String,
+    val year: Int
 )
