@@ -2,12 +2,125 @@
 
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.coroutines
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 class CoroutinesTest {
+
+    fun slowSync(execTime: Long): Long {
+        Thread.sleep(execTime * 1000)
+        return execTime
+    }
+
+    @Test
+    fun `get lots in sync`() {
+        var sumOfExecTimes = 0L
+        val time = measureTimeMillis {
+            sumOfExecTimes += slowSync(3)
+            sumOfExecTimes += slowSync(2)
+            sumOfExecTimes += slowSync(1)
+        }
+        println("Sum of exec times: ${sumOfExecTimes * 1000}")
+        println("Exec time sync: $time")
+    }
+
+    suspend fun slowAsync(execTime: Long): Long {
+        delay(execTime * 1000)
+        return execTime
+    }
+
+    @Test
+    fun `get lots in async`() {
+        val time = measureTimeMillis {
+            runBlocking {
+                launch { slowAsync(3) }
+                launch { slowAsync(2) }
+                launch { slowAsync(1) }
+            }
+        }
+
+        println("Exec time sync: $time")
+    }
+
+    @Test
+    fun `get lots in async with return values`() {
+        val execTimes = mutableListOf<Deferred<Long>>()
+        val time = measureTimeMillis {
+            runBlocking {
+                execTimes.add(async { slowAsync(3) })
+                execTimes.add(async { slowAsync(2) })
+                execTimes.add(async { slowAsync(1) })
+                println("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
+            }
+        }
+
+        println("Exec time sync: $time")
+    }
+
+    @Test
+    fun `sdag ahadf `() {
+        runBlocking {
+            // this: CoroutineScope
+            launch {
+                // launch new coroutine in the scope of runBlocking
+                delay(1000L)
+                println("World!")
+            }
+            println("Hello,")
+        }
+    }
+
+    @Test
+    fun `sdghsh 6u hn `() {
+        runBlocking {
+            // this: CoroutineScope
+            launch {
+                delay(200L)
+                println("Task from runBlocking")
+            }
+
+            coroutineScope {
+                // Creates a new coroutine scope
+                launch {
+                    delay(500L)
+                    println("Task from nested launch")
+                }
+
+                delay(100L)
+                println("Task from coroutine scope") // This line will be printed before nested launch
+            }
+
+            println("Coroutine scope is over") // This line is not printed until nested launch completes
+        }
+    }
+
+    @Test
+    fun `test launch`() {
+        fun doSomething() {
+            println("1: ${Thread.currentThread()}")
+        }
+
+
+        println(Thread.currentThread())
+        runBlocking {
+            println("2: ${Thread.currentThread()}")
+            launch {
+                println("3: ${Thread.currentThread()}")
+                doSomething()
+                println("4: ${Thread.currentThread()}")
+            }
+            println("5: ${Thread.currentThread()}")
+        }
+        println("6: ${Thread.currentThread()}")
+    }
 
 
     // Introduktion till coroutines: https://proandroiddev.com/async-operations-with-kotlin-coroutines-part-1-c51cc581ad33
@@ -24,7 +137,7 @@ class CoroutinesTest {
                 }
             }
         }
-        println("Created ${numberOfThreads} threads in ${time}ms.")
+        println("Created $numberOfThreads threads in ${time}ms.")
     }
 
     @Test
@@ -41,7 +154,7 @@ class CoroutinesTest {
                 }
             }
         }
-        println("Created ${numberOfCoroutines} coroutines in ${time}ms.")
+        println("Created $numberOfCoroutines coroutines in ${time}ms.")
     }
 
     /*
@@ -57,7 +170,7 @@ class CoroutinesTest {
             val value2 = service2()
             val value3 = service3()
 
-            println("The answer is: ${value1} ${value2} ${value3}")
+            println("The answer is: $value1 $value2 $value3")
         }
         println("Exec time: $time ms")
     }
@@ -76,7 +189,7 @@ class CoroutinesTest {
     }
 
     @Test
-    fun `foo`() {
+    fun `foo bar`() {
         runBlocking {
             // this: CoroutineScope
             launch {

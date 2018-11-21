@@ -50,20 +50,12 @@ class LambdasTest {
     }
 
 
+    @Suppress("DIVISION_BY_ZERO")
     @Test
     fun `when does a lambda run?`() {
-        // TODO petves: Bra exempel på att ett lambda körs "sen" :)
+        fun <R> runLambda(function: () -> R) = function()
 
-        fun division(namnare: Int, taljare: Int): Int {
-            try {
-                return taljare / namnare
-            } catch (e: Throwable) {
-                println("Det gick inte att dela $taljare med $namnare")
-                throw e
-            }
-        }
-
-        division(3, 1)
-        division(3, 0)
+        val function = { 1 / 0 }
+        println(runLambda(function))
     }
 }
