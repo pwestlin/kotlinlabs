@@ -3,11 +3,11 @@ package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-open class Result
-class Success : Result()
-class Failure(val errorMessage: String, val exception: java.lang.Exception) : Result()
+open class Result<T>
+class Success<T> : Result<T>()
+class Failure<T>(val errorMessage: String, val exception: java.lang.Exception) : Result<T>()
 
-fun safeApiCall(call: () -> Result, errorMessage: String): Result {
+fun <T : Any> safeApiCall(call: () -> Result<T>, errorMessage: String): Result<T> {
     return try {
         call()
     } catch (e: Exception) {
@@ -18,7 +18,7 @@ fun safeApiCall(call: () -> Result, errorMessage: String): Result {
 class SafeApiCallTest {
 
     class Api {
-        fun getResult(value: String): Result {
+        fun <T : Any> getResult(value: String): Result<T> {
             return when (value) {
                 "foo", "bar" -> Success()
                 else -> throw RuntimeException("$value could not be handled")
@@ -28,14 +28,14 @@ class SafeApiCallTest {
 
     @Test
     fun `call a non-safe API-function in a safe way`() {
-        var result = safeApiCall({ Api().getResult("foo") }, "Could not do it")
+        var result = safeApiCall({ Api().getResult<String>("foo") }, "Could not do it")
         assertThat(result).isInstanceOf(Success::class.java)
 
-        result = safeApiCall({ Api().getResult("foobar") }, "Could not do it")
+        result = safeApiCall({ Api().getResult<String>("foobar") }, "Could not do it")
         assertThat(result).isInstanceOf(Failure::class.java)
         with(result as Failure) {
-            assertThat(result.errorMessage).isEqualTo("Could not do it")
-            assertThat(result.exception).isInstanceOf(RuntimeException::class.java)
+            assertThat(errorMessage).isEqualTo("Could not do it")
+            assertThat(exception).isInstanceOf(RuntimeException::class.java)
         }
     }
 }
