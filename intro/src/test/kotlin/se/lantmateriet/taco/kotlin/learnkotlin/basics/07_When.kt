@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus.BAD_GATEWAY
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE
+import java.io.File
 
 class WhenTest {
 
@@ -48,4 +49,107 @@ class WhenTest {
             .hasMessage("HttpStatus 400 BAD_REQUEST is not ok by me!")
     }
 
+    @Test
+    fun `when in range`() {
+        fun inRange(int: Int) = when (int) {
+            in 0..9 -> "0..9"   // in is syntactic sugar for the contains function
+            in 10..99 -> "10..99"
+            else -> "too big"
+        }
+
+        assertThat(inRange(5)).isEqualTo("0..9")
+        assertThat(inRange(99)).isEqualTo("10..99")
+        assertThat(inRange(100)).isEqualTo("too big")
+    }
+
+    @Test
+    fun `smart casts`() {
+        open class Anything
+        class Thing(val foo: String): Anything()
+        class Gadget(val bar: String): Anything()
+
+        fun getAnythingAsString(anything: Anything) = when(anything) {
+            is Thing ->  anything.foo  // No explicit cast need, Kotlin has already casted Something to Thing
+            is Gadget -> anything.bar  // No explicit cast need, Kotlin has already casted Something to Gadget
+            else -> "unknown"
+        }
+
+        assertThat(getAnythingAsString(Thing("Get up an milk the cow slacker!"))).isEqualTo("Get up an milk the cow slacker!")
+    }
+
+    @Test
+    fun `when without parameter`() {
+        val string = "fågelholk"
+
+        // When turns out to be like if else-if else
+        val isFooOrBar = when {
+            string == "foo" -> true
+            string == "bar" -> true
+            else -> false
+        }
+
+        assertThat(isFooOrBar).isFalse()
+    }
+
+    @Test
+    fun `when can be used an all types, not just constants and enums (or Strings from Java 7) which is the limitation in Java`() {
+        val path = File("/tmp")
+
+        val type = when {
+            path.isDirectory -> "directory"
+            path.isFile -> "file"
+            else -> "What in the world is this?"
+        }
+
+        // Better than if else-if else? In this case - I think it is!
+
+        assertThat(type).isEqualTo("directory")
+    }
+
+    // When and exhaustive: https://proandroiddev.com/til-when-is-when-exhaustive-31d69f630a8b
+    data class Result(val type: Type) {
+        enum class Type {
+            SUCCESS, ERROR
+        }
+    }
+
+    @Test
+    fun `when is exhaustive when used as an expression`() {
+        val feeling = when (Result(Result.Type.ERROR).type) {
+            Result.Type.SUCCESS -> "Wohoo!"
+            Result.Type.ERROR -> "Booh!"    // Compiler error if branch not added
+        }
+
+        assertThat(feeling).isEqualTo("Booh!")
+    }
+
+    @Test
+    fun `when is NOT exhaustive when NOT used as an expression`() {
+        when (Result(Result.Type.ERROR).type) {
+            Result.Type.SUCCESS -> "Wohoo!"
+            //Result.Type.ERROR -> "Booh!"  // No compiler error
+        }
+    }
+
+    // Extension proerty for ALL classes
+    val <T> T.exhaustive: T
+        get() = this
+
+    @Test
+    fun `when is exhaustive when we use exhaustive`() {
+        when (Result(Result.Type.ERROR).type) {
+            Result.Type.SUCCESS -> "Wohoo!"
+            Result.Type.ERROR -> "Booh!"  // Compiler error if branch not added
+        }.exhaustive
+    }
+
+    @Test
+    fun `when is exhaustive when we use exhaustive even on String`() {
+        when ("foo") {
+            "foo" -> "Wohoo!"
+            "bar" -> "Booh!"
+            else -> "Say what?" // Compiler error if branch not added
+        }.exhaustive
+    }
 }
+

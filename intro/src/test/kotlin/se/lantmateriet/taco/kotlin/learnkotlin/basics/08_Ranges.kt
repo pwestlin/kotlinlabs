@@ -12,8 +12,8 @@ class RangesTest {
         assertThat(IntRange(2, 4)).containsExactly(2, 3, 4)
         assertThat(CharRange('b', 'd')).containsExactly('b', 'c', 'd')
 
-        // Kommer inte funka för å, ä, ö ligger
-        assertThat(CharRange('å', 'ö')).containsExactly('å', 'ä', 'ö')
+        // Kommer inte funka för å, ä, ö ligger inte efter varandra i ASCII-tabellen
+        //assertThat(CharRange('å', 'ö')).containsExactly('å', 'ä', 'ö')
     }
 
     @Test
