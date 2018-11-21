@@ -54,7 +54,7 @@ class MovieControllerTest {
 
     @Test
     fun `list all movies`() {
-        whenever(repository.getAll()).thenReturn(movies.toFlux())
+        whenever(repository.all()).thenReturn(movies.toFlux())
 
         client
             .get()

@@ -19,7 +19,40 @@ import kotlin.random.Random
 
 
 @SpringBootApplication
-class WebfluxApplication
+class WebfluxApplication {
+/*
+    @Bean
+    fun routes(movieRepository: MovieRepository) = nest(
+        path("/"),
+        route(
+            GET("/foo"),
+            HandlerFunction {
+                ServerResponse.ok().syncBody("foo")
+            }
+        ).andRoute(
+            GET("/movie/{id}"),
+            HandlerFunction {
+                ServerResponse.ok().body(movieRepository.get(it.pathVariable("id").toInt()))
+            }
+        ).andRoute(
+            GET("/movies"),
+            HandlerFunction {
+                ServerResponse.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(movieRepository.all())
+            }
+        ).andRoute(
+            GET("/movieTip"),
+            HandlerFunction {
+                ServerResponse
+                    .ok()
+                    .contentType(MediaType.TEXT_EVENT_STREAM)
+                    .body(
+                        movieRepository.randomMovie()
+                    )
+            }
+        )
+    )
+*/
+}
 
 fun main(args: Array<String>) {
     runApplication<WebfluxApplication>(*args)
@@ -34,7 +67,7 @@ class MovieController(private val movieRepository: MovieRepository) {
     fun get(@PathVariable id: Int) = movieRepository.get(id)
 
     @GetMapping(path = ["movies"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
-    fun getAll() = movieRepository.getAll()
+    fun getAll() = movieRepository.all()
 
     @GetMapping(path = ["/movieTip"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun movieTip(): Flux<Movie> {
@@ -73,8 +106,8 @@ class MovieRepository {
         Movie(4, "Days of Thunder", 1988)
     )
 
-    fun getAll(): Flux<Movie> {
-        return Flux.fromIterable(movies.toList())
+    fun all(): Flux<Movie> {
+        return Flux.fromIterable(movies.toList().sortedBy { it.year }.asReversed())
     }
 
     fun get(id: Int): Mono<Movie> {
