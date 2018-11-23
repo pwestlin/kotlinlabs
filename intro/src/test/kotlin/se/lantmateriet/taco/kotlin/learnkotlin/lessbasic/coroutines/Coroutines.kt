@@ -33,12 +33,13 @@ class CoroutinesTest {
     }
 
     suspend fun slowAsync(execTime: Long): Long {
+        println("slowAsync: ${Thread.currentThread()}")
         delay(execTime * 1000)
         return execTime
     }
 
     @Test
-    fun `get lots in async`() {
+    fun `get three values in async`() {
         val time = measureTimeMillis {
             runBlocking {
                 launch { slowAsync(3) }
@@ -51,7 +52,7 @@ class CoroutinesTest {
     }
 
     @Test
-    fun `get lots in async with return values`() {
+    fun `get three values in async with return values`() {
         val execTimes = mutableListOf<Deferred<Long>>()
         val time = measureTimeMillis {
             runBlocking {
