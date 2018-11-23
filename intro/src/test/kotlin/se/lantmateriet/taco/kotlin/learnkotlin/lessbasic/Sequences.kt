@@ -13,7 +13,7 @@ import kotlin.system.measureNanoTime
 class SequencesTest {
 
     @Test
-    fun `map a collection`() {
+    fun `map and filter a collection`() {
         var mapCount = 0
         var filterCount = 0
         val result = listOf(1, 2, 3, 4, 5)
@@ -27,12 +27,13 @@ class SequencesTest {
                 n < 10 }
             .first()
 
+        assertThat(result).isEqualTo(1)
         assertThat(mapCount).isEqualTo(5)
         assertThat(filterCount).isEqualTo(5)
     }
 
     @Test
-    fun `map a collection using sequence`() {
+    fun `map and filter a collection using sequence`() {
         var mapCount = 0
         var filterCount = 0
         val result = listOf(1, 2, 3, 4, 5).asSequence()
@@ -46,6 +47,7 @@ class SequencesTest {
                 n < 10 }
             .first()
 
+        assertThat(result).isEqualTo(1)
         assertThat(mapCount).isEqualTo(1)
         assertThat(filterCount).isEqualTo(1)
     }
