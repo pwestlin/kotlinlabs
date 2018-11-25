@@ -246,4 +246,24 @@ class LessBasicTest {
         assertThat(invokable.invoke("foo")).isEqualTo("oof")
         assertThat(invokable("foo")).isEqualTo("oof")
     }
+
+
+    class FooWithFakeCOnstructor(val a: Int, val b: Int) {
+        companion object {
+            operator fun invoke(a: String, b: String) = FooWithFakeCOnstructor(a.toInt(), b.toInt())
+        }
+    }
+
+    @Test
+    fun `fake constructor`() {
+        with(FooWithFakeCOnstructor(1,2)) {
+            assertThat(a).isEqualTo(1)
+            assertThat(b).isEqualTo(2)
+        }
+
+        with(FooWithFakeCOnstructor("1","2")) {
+            assertThat(a).isEqualTo(1)
+            assertThat(b).isEqualTo(2)
+        }
+    }
 }
