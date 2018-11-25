@@ -8,7 +8,7 @@ import org.junit.Test
 /*
 The idea here is to test how deep a copy of a data class goes.
 
-Conclusion: It goes all the way, even when a data class inherits from a regular class. That I did not expect.
+Conclusion: It goes all the way down, even when a data class inherits from a regular class. That I did not expect.
  */
 
 abstract class RegularClassA {
