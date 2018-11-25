@@ -12,6 +12,7 @@ Conclusion: It goes all the way down, even when a data class inherits from a reg
  */
 
 abstract class RegularClassA {
+    var propertyA = "foobar"
     val aList = listOf("regular A foo", "regular A bar")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -20,6 +21,7 @@ abstract class RegularClassA {
         other as RegularClassA
 
         if (aList != other.aList) return false
+        if (propertyA != other.propertyA) return false
 
         return true
     }
@@ -63,7 +65,7 @@ data class DataClassB(val b: String) {
     val bList = listOf(DataClassA("A1"), DataClassA("A2"))
 }
 
-data class DataClassC(val b: String): RegularClassA() {
+data class DataClassC(val b: String) : RegularClassA() {
     val cList = listOf("a", "b")
 }
 
@@ -91,6 +93,10 @@ class DataClassCopyTest {
 
         assertThat(copy == original).isTrue()
         assertThat(copy === original).isFalse()
+
+        assertThat(copy.propertyA == original.propertyA).isTrue()
+        copy.propertyA = copy.propertyA + "1"
+        assertThat(copy.propertyA == original.propertyA).isFalse()
 
         assertThat(copy.cList == original.cList).isTrue()
         assertThat(copy.cList === original.cList).isFalse()
