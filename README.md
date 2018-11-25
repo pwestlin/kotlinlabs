@@ -1,6 +1,9 @@
 # Kotlin labs
 Trying Kotlin features, idioms, tricks and frameworks in the various subprojects
 
+**Disclaimer**
+Code and comments should be in english but there may be some stuff in swedish that I forgot to translater... :) 
+
 ## coroutines
 Yes, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) :)
 

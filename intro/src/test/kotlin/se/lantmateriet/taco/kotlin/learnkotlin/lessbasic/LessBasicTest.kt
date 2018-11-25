@@ -248,20 +248,20 @@ class LessBasicTest {
     }
 
 
-    class FooWithFakeCOnstructor(val a: Int, val b: Int) {
+    class FooWithFakeConstructor(val a: Int, val b: Int) {
         companion object {
-            operator fun invoke(a: String, b: String) = FooWithFakeCOnstructor(a.toInt(), b.toInt())
+            operator fun invoke(a: String, b: String) = FooWithFakeConstructor(a.toInt(), b.toInt())
         }
     }
 
     @Test
     fun `fake constructor`() {
-        with(FooWithFakeCOnstructor(1,2)) {
+        with(FooWithFakeConstructor(1,2)) {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }
 
-        with(FooWithFakeCOnstructor("1","2")) {
+        with(FooWithFakeConstructor("1","2")) {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }
