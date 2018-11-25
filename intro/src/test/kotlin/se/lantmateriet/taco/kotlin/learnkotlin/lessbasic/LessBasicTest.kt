@@ -216,4 +216,34 @@ class LessBasicTest {
 
         println("Exec time: $execTime ms")
     }
+
+
+    @Test
+    fun `takeIf`() {
+        val string = "foo"
+
+        // take returns `this` value if it satisfies the given [predicate] or `null`, if it doesn't.
+        assertThat(string.takeIf { it == "foo" }).isEqualTo(string)
+        assertThat(string.takeIf { it == "bar" }).isNull()
+    }
+
+    @Test
+    fun `takeUnless`() {
+        val string = "foo"
+
+        // take returns `this` value if it _does not_ satisfy the given [predicate] or `null`, if it does.
+        assertThat(string.takeUnless { it == "foo" }).isNull()
+        assertThat(string.takeUnless { it == "bar" }).isEqualTo(string)
+    }
+
+    @Test
+    fun `invoke`() {
+        class ReverseStringInvokable {
+            operator fun invoke(string: String) = string.reversed()
+        }
+
+        val invokable = ReverseStringInvokable()
+        assertThat(invokable.invoke("foo")).isEqualTo("oof")
+        assertThat(invokable("foo")).isEqualTo("oof")
+    }
 }
