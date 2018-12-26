@@ -98,5 +98,80 @@ class GenericsTest {
         //copy(bean1, bean2)        // Går inte för kompilatorn vill ha Bean<Any>
     }
 
+    @Test
+    fun `bla bla`() {
+        abstract class Base
+        class Impl1 : Base()
+        class Impl2 : Base()
 
+        class BaseRegistry(val bases: List<Base>) {
+            fun print() {
+                for (base in bases) {
+                    println("base = $base")
+                }
+            }
+
+            fun getBase(base: Base) = bases.find { it::class == base::class  }
+            inline fun <reified T : Base> getBase() = bases.find { it::class is T  } as T
+        }
+
+        val bases = listOf(Impl1(), Impl2())
+        val registry = BaseRegistry(bases)
+        registry.print()
+        val a = registry.getBase(bases.first())
+        val b = registry.getBase<Impl2>()
+        println("registry.getBase(bases.first()) = ${registry.getBase(bases.first())}")
+    }
+}
+
+interface Otypad
+class Otypad1 : Otypad
+
+interface OtypadAgain
+class OtypadAgain1 : OtypadAgain
+
+interface Typad<T : Typad<T>>
+class Typad1 : Typad<Typad1>
+
+interface Converter<O : Otypad, T : Typad<T>> {
+    fun konvertera(utUtbytesobjekt: T): O
+    fun konvertera(inUtbytesobjekt: O): T
+}
+
+interface Converter2<O : Otypad, T : OtypadAgain> {
+    fun konvertera(utUtbytesobjekt: T): O
+    fun konvertera(inUtbytesobjekt: O): T
+}
+
+class FooConverter : Converter<Otypad1, Typad1> {
+    override fun konvertera(utUtbytesobjekt: Typad1): Otypad1 {
+        TODO("not implemented")
+    }
+
+    override fun konvertera(inUtbytesobjekt: Otypad1): Typad1 {
+        TODO("not implemented")
+    }
+}
+
+class FooConverter2 : Converter2<Otypad1, OtypadAgain1> {
+    override fun konvertera(inUtbytesobjekt: Otypad1): OtypadAgain1 {
+        TODO("not implemented")
+    }
+
+    override fun konvertera(utUtbytesobjekt: OtypadAgain1): Otypad1 {
+        TODO("not implemented")
+    }
+}
+
+class GenericsAssHoleTest {
+
+    @Test
+    fun `do it`() {
+        val converter: Converter<*, *> = FooConverter()
+
+        val converter21: Converter2<*, *> = FooConverter2()
+        val converter22: Converter2<Otypad, OtypadAgain> = FooConverter2() as Converter2<Otypad, OtypadAgain>
+        converter22.konvertera(Otypad1())
+        converter22.konvertera(OtypadAgain1())
+    }
 }
