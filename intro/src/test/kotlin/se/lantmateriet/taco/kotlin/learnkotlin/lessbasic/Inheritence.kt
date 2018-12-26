@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
+import java.util.function.Predicate
 
 
 abstract class Parent(val name: String) {
@@ -110,7 +111,7 @@ class InterfaceInheritanceTest {
         val noLegs: Int
     }
 
-    data class Dog(val breed: String): Animal {
+    data class Dog(val breed: String) : Animal {
         override val noLegs: Int
             get() = 4
     }
@@ -152,5 +153,39 @@ class InterfaceInheritanceTest {
             assertThat(versionGiltigTill).isNull()
             assertThat(arendeidentitet).isEqualTo("abc123")
         }
+    }
+
+    @Test
+    fun `sdag saf`() {
+        abstract class Foo {
+            fun printJavaClass() {
+                println("this.javaClass = ${this.javaClass}")
+            }
+        }
+
+        class FooImpl : Foo()
+
+        FooImpl().printJavaClass()
+    }
+
+    @Test
+    fun `efag suy 356`() {
+        fun foo(animal: Animal) {
+            // Do something
+        }
+
+        foo(Dog("bla"))
+    }
+
+    class DogPrediate : Predicate<Animal> {
+        override fun test(t: Animal): Boolean {
+            return t is Dog
+        }
+    }
+
+    @Test
+    fun `Test DogPrediate`() {
+        val prediate = DogPrediate()
+        assertThat(prediate.test(Dog("doggo"))).isTrue()
     }
 }
