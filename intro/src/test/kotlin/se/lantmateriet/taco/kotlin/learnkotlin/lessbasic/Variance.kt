@@ -27,12 +27,30 @@ class VarianceTest {
         class Taker<in T> {
             fun takes(t: T) {}
         }
+
+        fun takerTakes(taker : Taker<*>) {
+            //taker.takes() // Nothing?
+        }
+
+        val taker = Taker<String>()
+        taker.takes("af")
     }
 
     @Test
     fun `out`() {
         class Giver<out T> {
-            //fun gives(): T {}
+/*
+            fun gives(): T {
+                return T::class.java
+            }
+*/
         }
+
+        fun giverGives(giver : Giver<*>) {
+            //giver
+        }
+
+        val giver = Giver<String>()
+        giverGives(giver)
     }
 }
