@@ -3,12 +3,14 @@
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.coroutines
 
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
@@ -247,6 +249,19 @@ class CoroutinesTest {
             }
         }
         println("\ntime = $time ms")
+    }
+
+    @Test
+    fun `test withContext`() {
+        suspend fun slowWork(jobId: Int, delay: Long = 1000) = withContext(Dispatchers.Default) {
+            Thread.sleep(delay)
+            println("Job $jobId done!")
+        }
+
+        runBlocking {
+            launch { slowWork(1)}
+        }
+
     }
 
     suspend fun slowAsATurtle(time: Long) {

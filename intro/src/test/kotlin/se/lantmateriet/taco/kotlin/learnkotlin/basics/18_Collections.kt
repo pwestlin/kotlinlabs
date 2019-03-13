@@ -88,4 +88,19 @@ class CollectionsTest {
         assertThat(fruitsWithA).containsExactlyInAnyOrder("AVOCADO", "APPLE")
     }
 
+    @Test
+    fun `list + value`() {
+        val strings = listOf("a", "b")
+        val string = "c"
+
+        assertThat(strings + string).containsExactly("a", "b", "c")
+    }
+    
+    @Test
+    fun `list + list`() {
+        val strings1 = listOf("a", "b")
+        val strings2 = listOf("c", "d")
+
+        assertThat(strings1 + strings2).containsExactly("a", "b", "c", "d")
+    }
 }

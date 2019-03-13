@@ -20,7 +20,6 @@ class LessBasicTest {
             .hasMessage("An operation is not implemented: Implementera mig då!")
     }
 
-
     object Resource {
         const val name = "I am a singleton"
         const val value = 42
@@ -256,12 +255,12 @@ class LessBasicTest {
 
     @Test
     fun `fake constructor`() {
-        with(FooWithFakeConstructor(1,2)) {
+        with(FooWithFakeConstructor(1, 2)) {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }
 
-        with(FooWithFakeConstructor("1","2")) {
+        with(FooWithFakeConstructor("1", "2")) {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }

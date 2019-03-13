@@ -9,6 +9,9 @@ class FunctionsTest {
 
 
     // I Kotlin heter det inte metod utan funktion - därav fun
+    // Function vs Method vs Procedure: https://blog.kotlin-academy.com/kotlin-programmer-dictionary-function-vs-method-vs-procedure-c0216642ee87
+    // "Function returns a value, while procedure doesn’t."
+    // "Method is a function associated to an object."
     fun function() {}
 
     @Test
@@ -34,7 +37,7 @@ class FunctionsTest {
         assertThat(square(3)).isEqualTo(9)
     }
 
-    // Som tumregel kan man ha att alltid sätta returtypen på en funktion på publika metoder?
+    // Tumregel: Sätt alltid returtypen på publika funktioner
 
     @Test
     fun `no return type`() {
@@ -46,12 +49,13 @@ class FunctionsTest {
         assertThat(voidFunctionOrWhat()).isInstanceOf(Unit::class.java)
 
         // Det finns även en returtyp Nothing men den tar vi i Kodsnacket "Advanced Kotlin" :)
+        // (https://blog.kotlin-academy.com/the-beauty-of-kotlin-typing-system-7a2804fe6cf0)
     }
 
     @Test
     fun varargs() {
         // I Java anger man varargs som "..."
-        // I Kotlin har varargs ett eget keyword
+        // Kotlin har varargs som ett keyword
         fun concat(vararg strings: String): String {
             return strings.joinToString(" ")
         }

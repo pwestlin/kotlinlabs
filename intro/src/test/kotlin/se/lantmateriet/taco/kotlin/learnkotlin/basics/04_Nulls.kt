@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName")
+@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName", "SENSELESS_COMPARISON")
 
 package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
@@ -18,13 +18,15 @@ class NullsTest {
         var nullableString: String? = "b"
         nullableString = null
 
-        // !! -> Ge mig värdet i variabeln för jag VET att det inte är null
+        // !! -> Ge mig värdet i variabeln för jag VET att det inte är null (unsafe call)
         assertThatThrownBy { nullableString!!.length }
             .isInstanceOf(KotlinNullPointerException::class.java)
             .hasMessage(null)
 
-        // null-hanteringen i Kotlin finns egentligen bara till pga att den ska
-        // vara Java-kompatibel
+        // !! finns egentligen bara till pga att Kotlin ska
+        // vara Java-kompatibelt
+        // I rena Kotlin-projekt existerar unsafe calls oerhört sällan.
+        // I Java är alla anrop unsafe.
     }
 
     @Test
@@ -38,19 +40,30 @@ class NullsTest {
     }
 
     @Test
+    fun `en liten försmak av smart casts`() {
+        val nullableString: String? = "Bosse Ringholm bor inte här längre"
+        if (nullableString != null) {
+            println(nullableString.length)
+        }
+    }
+
+    @Test
     fun nullableCheck() {
         class Address(val street: String? = null)
         class Person(val address: Address? = null)
         class Customer(val id: Long, val person: Person?)
 
         fun getCustomerStreetAddress(customer: Customer?): String? {
-            // TODO petves: Gör om till safe-calls
             if (customer != null && customer.person != null && customer.person.address != null && customer.person.address.street != null) {
                 return customer.person.address.street
             } else {
                 return null
             }
+        }
 
+        fun betterGetCustomerStreetAddress(customer: Customer?): String? {
+            // Safe calls
+            return customer?.person?.address?.street
         }
 
         assertThat(getCustomerStreetAddress(null)).isNull()
@@ -88,11 +101,10 @@ class NullsTest {
             println("Inte null")
         }
 
-        /* let är alltså samma sak som:
-        if(value != null) {
+        // ?let är alltså samma sak som
+        if (value != null) {
             println("Inte null")
         }
-        */
     }
 
     @Test
