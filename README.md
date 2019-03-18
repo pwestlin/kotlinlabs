@@ -17,7 +17,7 @@ Accessing a database with JDBC
 Just playing around with Kotlin misc features
 
 ## webflux
-Testing [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html)
+Testing [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) and related stuff.
 
 ## vehicle
 [Inheritance](https://kotlinlang.org/docs/reference/classes.html) and [generics](https://kotlinlang.org/docs/reference/generics.html)
