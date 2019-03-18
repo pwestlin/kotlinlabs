@@ -125,7 +125,6 @@ class MovieController(private val movieRepository: MovieRepository, private val 
         return movieRepository.randomMovie()
     }
 
-    // TODO petves: Test, but how?
     // Inspired by https://projectreactor.io/docs/core/release/reference/#producing
     @GetMapping(path = ["/newMovies"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun newMovies(): Flux<Movie> {
