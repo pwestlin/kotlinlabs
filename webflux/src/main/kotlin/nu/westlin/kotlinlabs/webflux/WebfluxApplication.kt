@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.DirectProcessor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.lang.System.out
@@ -113,6 +114,8 @@ interface NewMovieListener {
 @RestController
 @RequestMapping("/")
 class MovieController(private val movieRepository: MovieRepository, private val newMovieProcessor: NewMovieProcessor) : ApplicationListener<ContextClosedEvent> {
+    private val newMovieProcessor2: DirectProcessor<Movie> = DirectProcessor.create()
+    private val newMovieFlux: Flux<Movie> = newMovieProcessor2.share()
 
     @GetMapping("movie/{id}")
     fun get(@PathVariable id: Int) = movieRepository.get(id)
@@ -142,6 +145,12 @@ class MovieController(private val movieRepository: MovieRepository, private val 
         }
     }
 
+    // Inspired by https://projectreactor.io/docs/core/release/reference/#reactor.hotCold
+    @GetMapping(path = ["/newMovies2"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun newMovies2(): Flux<Movie> {
+        return newMovieFlux
+    }
+
     @GetMapping("/movieTip-sse")
     fun streamEvents(): Flux<ServerSentEvent<Movie>> {
         var counter = 0
@@ -163,6 +172,7 @@ class MovieController(private val movieRepository: MovieRepository, private val 
     fun create(@RequestBody movie: Movie): Mono<Movie> {
         with(movieRepository.create(movie)) {
             newMovieProcessor.process(this)
+            newMovieProcessor2.onNext(movie)
             return Mono.just(this)
         }
     }
@@ -170,6 +180,7 @@ class MovieController(private val movieRepository: MovieRepository, private val 
     override fun onApplicationEvent(event: ContextClosedEvent) {
         out.println("shutting down")
         this.newMovieProcessor.complete()
+        this.newMovieProcessor2.onComplete()
     }
 }
 
