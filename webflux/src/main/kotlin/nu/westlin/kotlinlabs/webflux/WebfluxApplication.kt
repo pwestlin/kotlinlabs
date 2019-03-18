@@ -1,10 +1,15 @@
+@file:Suppress("UnusedMainParameter")
+
 package nu.westlin.kotlinlabs.webflux
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.ApplicationListener
+import org.springframework.context.event.ContextClosedEvent
 import org.springframework.http.MediaType
 import org.springframework.http.codec.ServerSentEvent
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.lang.System.out
 import java.time.Duration
 import kotlin.random.Random
 
@@ -56,12 +62,57 @@ class WebfluxApplication {
 
 fun main(args: Array<String>) {
     runApplication<WebfluxApplication>(*args)
+
+
+/*
+    class MyConsumer {
+        fun print(string: String) {
+            println("string = $string")
+        }
+    }
+
+    val consumer = MyConsumer()
+
+    val emitter = EmitterProcessor.create<String>()
+    val sink: FluxSink<String> = emitter.sink()
+    emitter.publishOn(Schedulers.single())
+        .map { it.toUpperCase() }
+        .filter { it.startsWith("HELLO") }
+        .delayElements(Duration.ofSeconds(1))
+        .subscribe { consumer.print(it) }
+    sink.next("Hello World!")
+    sink.next("Goodbye World!")
+    sink.next("Hello Wisconsin!")
+    Thread.sleep(4000)
+*/
+
 }
 
+@Component
+class NewMovieProcessor {
+    private val listeners = mutableListOf<NewMovieListener>()
+
+    fun register(listener: NewMovieListener) {
+        listeners.add(listener)
+    }
+
+    fun process(movie: Movie) {
+        listeners.forEach { it.onNewMovie(movie) }
+    }
+
+    fun complete() {
+        listeners.forEach { it.processComplete() }
+    }
+}
+
+interface NewMovieListener {
+    fun onNewMovie(movie: Movie)
+    fun processComplete()
+}
 
 @RestController
 @RequestMapping("/")
-class MovieController(private val movieRepository: MovieRepository) {
+class MovieController(private val movieRepository: MovieRepository, private val newMovieProcessor: NewMovieProcessor) : ApplicationListener<ContextClosedEvent> {
 
     @GetMapping("movie/{id}")
     fun get(@PathVariable id: Int) = movieRepository.get(id)
@@ -72,6 +123,24 @@ class MovieController(private val movieRepository: MovieRepository) {
     @GetMapping(path = ["/movieTip"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun movieTip(): Flux<Movie> {
         return movieRepository.randomMovie()
+    }
+
+    // TODO petves: Test, but how?
+    // Inspired by https://projectreactor.io/docs/core/release/reference/#producing
+    @GetMapping(path = ["/newMovies"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun newMovies(): Flux<Movie> {
+        return Flux.create { sink ->
+            newMovieProcessor.register(object : NewMovieListener {
+                override fun processComplete() {
+                    sink.complete()
+                }
+
+                override fun onNewMovie(movie: Movie) {
+                    sink.next(movie)
+                }
+            })
+
+        }
     }
 
     @GetMapping("/movieTip-sse")
@@ -93,7 +162,15 @@ class MovieController(private val movieRepository: MovieRepository) {
 
     @PostMapping("movie")
     fun create(@RequestBody movie: Movie): Mono<Movie> {
-        return Mono.just(movieRepository.create(movie))
+        with(movieRepository.create(movie)) {
+            newMovieProcessor.process(this)
+            return Mono.just(this)
+        }
+    }
+
+    override fun onApplicationEvent(event: ContextClosedEvent) {
+        out.println("shutting down")
+        this.newMovieProcessor.complete()
     }
 }
 

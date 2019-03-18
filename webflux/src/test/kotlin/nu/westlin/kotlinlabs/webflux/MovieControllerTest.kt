@@ -1,7 +1,9 @@
 package nu.westlin.kotlinlabs.webflux
 
+import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
@@ -25,7 +27,7 @@ import javax.inject.Inject
 @WebFluxTest
 @RunWith(SpringRunner::class)
 class MovieControllerTest {
-    val movies = mutableListOf(
+    private val movies = mutableListOf(
         Movie(1, "Top Secret", 1984),
         Movie(2, "Spaceballs", 1987),
         Movie(3, "Pulp Fiction", 1992)
@@ -33,6 +35,9 @@ class MovieControllerTest {
 
     @Inject
     lateinit var client: WebTestClient
+
+    @MockBean
+    lateinit var newMovieProcessor: NewMovieProcessor
 
     @MockBean
     lateinit var repository: MovieRepository
@@ -118,6 +123,26 @@ class MovieControllerTest {
     }
 
     @Test
+    @Ignore("Donät know how to test this... :/")
+    fun `stream new movies`() {
+        val result = client
+            .get()
+            .uri("/newMovies")
+            .accept(TEXT_EVENT_STREAM)
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType("$TEXT_EVENT_STREAM_VALUE;charset=UTF-8")
+            .returnResult<Movie>()
+        val body = result.responseBody
+        StepVerifier.create(body)
+            .expectNextMatches {
+                it.id == 1 //&& assertMovie(it.data()!!, movies[0])
+            }
+            .thenCancel()
+            .verify()
+    }
+
+    @Test
     fun `list all movies made after 1984`() {
         val year = 1984
         whenever(repository.getAllAfterYear(year)).thenReturn(movies.filter { it.year > year })
@@ -149,6 +174,8 @@ class MovieControllerTest {
             .expectBodyList<Movie>()
             .hasSize(1)
             .contains(createdMovie)
+
+        verify(newMovieProcessor).process(createdMovie)
     }
 
     @Suppress("UNCHECKED_CAST")

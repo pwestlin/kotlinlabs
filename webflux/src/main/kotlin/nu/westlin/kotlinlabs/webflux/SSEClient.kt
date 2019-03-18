@@ -9,10 +9,11 @@ import java.time.LocalTime
 
 
 /**
- * Consumes Server-Sent Events (SSE) from endpoint in MovieController.
+ * Consumes Server-Sent Events (SSE) or new movies from endpoint in MovieController.
  */
 fun main() {
-    SSEClient().consumeServerSentEvent()
+    //SSEClient().consumeServerSentEvent()
+    SSEClient().consumeMovies()
 
     // Sleep for a while to get some events (which arrives in another thread)
     Thread.sleep(5000)
@@ -35,6 +36,24 @@ class SSEClient {
                     val movie = content.data()!!
 
                     logger.info("Time: ${LocalTime.now()} - event: name[${content.event()}], id [${content.id()}], content[$movie] ")
+                }
+            },
+            { error -> logger.error("Error receiving SSE: {}", error) },
+            { logger.info("Completed!!!") })
+    }
+
+    fun consumeMovies() {
+        val client = WebClient.create("http://localhost:8080/")
+
+        val eventStream = client.get()
+            .uri("/movies")
+            .retrieve()
+            .bodyToFlux<Movie>()
+
+        eventStream.subscribe(
+            { content ->
+                run {
+                    logger.info("movie = $content")
                 }
             },
             { error -> logger.error("Error receiving SSE: {}", error) },
