@@ -3,6 +3,7 @@
 package nu.westlin.kotlinlabs.webflux
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationListener
@@ -20,9 +21,10 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.DirectProcessor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.lang.System.out
 import java.time.Duration
 import kotlin.random.Random
+
+private val logger = LoggerFactory.getLogger(WebfluxApplication::class.java)
 
 
 @SpringBootApplication
@@ -173,12 +175,13 @@ class MovieController(private val movieRepository: MovieRepository, private val 
         with(movieRepository.create(movie)) {
             newMovieProcessor.process(this)
             newMovieProcessor2.onNext(movie)
+            logger.info("Added movie: $movie")
             return Mono.just(this)
         }
     }
 
     override fun onApplicationEvent(event: ContextClosedEvent) {
-        out.println("shutting down")
+        logger.debug("shutting down")
         this.newMovieProcessor.complete()
         this.newMovieProcessor2.onComplete()
     }
