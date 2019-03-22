@@ -20,10 +20,10 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.6.0'
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     testCompile group: 'io.mockk', name: 'mockk', version: '1.9.2'
 
-    // Needed for Mockito (and Mockito-Kotlin) by not for Mockk
+    // Needed for Mockito (and Mockito-Kotlin) by not for MockK
     testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.25.1'
 
 }

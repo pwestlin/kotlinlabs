@@ -31,7 +31,7 @@ dependencies {
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.6.0'
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     testCompile group: 'org.json', name: 'json', version: '20180813'
     testCompile group: 'io.projectreactor', name: 'reactor-test', version: '3.2.6.RELEASE'
 
