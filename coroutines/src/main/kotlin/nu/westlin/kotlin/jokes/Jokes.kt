@@ -52,7 +52,7 @@ class JokesService(private val repository: JokesRepository) {
 class WebConfiguration(private val restTemplateBuilder: RestTemplateBuilder) {
 
     @Bean
-    fun restTemplate() = restTemplateBuilder.build()
+    fun restTemplate() = restTemplateBuilder.build()!!
 }
 
 @Repository
@@ -62,7 +62,7 @@ class JokesRepository(@Inject private val restTemplate: RestTemplate) {
     fun randomJoke(): Joke {
         val joke = (restTemplate.getForObject("https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_joke", Joke::class.java)
             ?: throw RuntimeException("Could not find joke"))
-        logger.info("joke = ${joke}")
+        logger.info("joke = $joke")
         return joke
     }
 
