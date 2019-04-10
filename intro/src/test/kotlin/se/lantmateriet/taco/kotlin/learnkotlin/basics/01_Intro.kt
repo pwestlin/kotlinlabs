@@ -1,6 +1,9 @@
-@file:Suppress("PackageName", "unused")
+@file:Suppress("PackageName", "unused", "UnusedMainParameter")
 
 package se.lantmateriet.taco.kotlin.learnkotlin.basics
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 // main
 fun main(args: Array<String>) {
@@ -20,3 +23,18 @@ class Foo
 
 // Ja, man kan ha flera klasser per Kotlin-fil
 class Bar
+
+
+data class Bil(val modell: String?)
+
+
+class BilTest {
+
+    private fun Bil.finModell() = this.modell?.let { "Modell: $modell" } ?: "ingen"
+
+    @Test
+    fun `fin modell`() {
+        assertThat(Bil("Skoda").finModell()).isEqualTo("Modell: Skoda")
+        assertThat(Bil(null).finModell()).isEqualTo("ingen")
+    }
+}
