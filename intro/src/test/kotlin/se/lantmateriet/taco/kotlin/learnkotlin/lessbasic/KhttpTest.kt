@@ -5,6 +5,7 @@ package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 import khttp.get
 import org.json.JSONObject
 import org.junit.Test
+import org.junit.Ignore
 
 class KhttpTest {
 
@@ -24,6 +25,7 @@ class KhttpTest {
     }
 
     @Test
+    @Ignore
     fun `get all countries in Europe`() {
         val r = get("https://restcountries.eu/rest/v2/region/europe")
         println("r = ${r}")
