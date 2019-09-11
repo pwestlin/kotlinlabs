@@ -33,6 +33,7 @@ class CarDealerServicePureMockitoTest {
         Mockito.verify(repository).add(car)
     }
 
+    @Suppress("UNUSED_VARIABLE")
     @Test
     fun `find car by brand and production year`() {
         val car = PORSCHE_2018

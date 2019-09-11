@@ -166,6 +166,7 @@ class FooConverter2 : Converter2<Otypad1, OtypadAgain1> {
 class GenericsAssHoleTest {
 
     //@Test
+    @Suppress("UNCHECKED_CAST")
     fun `do it`() {
         val converter: Converter<*, *> = FooConverter()
 

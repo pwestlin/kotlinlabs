@@ -1,13 +1,13 @@
 package nu.westlin.kotlin.vehicle
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class CarJsonTest {
 
-    val objectMapper = ObjectMapper()
+    private val objectMapper = jacksonObjectMapper()
 
     @Test
     fun `serialize and deserialize car`() {

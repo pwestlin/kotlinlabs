@@ -3,7 +3,7 @@
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
@@ -29,7 +29,7 @@ class DataChild(name: String) : Parent(name)
 class DataChildWithCopyFunction(@JsonProperty("name") name: String) : Parent(name) {
 
     fun copy(): DataChildWithCopyFunction {
-        val mapper = ObjectMapper()
+        val mapper = jacksonObjectMapper()
         val str = mapper.writeValueAsString(this)
         val obj = mapper.readValue(str, DataChildWithCopyFunction::class.java)
 
@@ -57,9 +57,9 @@ class InheritenceTest {
     @Test
     fun `DataChildWithCopyFunction`() {
         val child = DataChildWithCopyFunction("Adam")
-        println("child = ${child}")
+        println("child = $child")
         val child2 = child.copy()
-        println("child2 = ${child2}")
+        println("child2 = $child2")
 
         assertThat(child2 == child).isFalse()
         assertThat(child2.name).isEqualTo(child.name)
@@ -75,7 +75,7 @@ class Fastighet2(
     @JsonProperty("objektversion") objektversion: Int = 1,
     @JsonProperty("status") val status: String) : Utbytesobjekt2(objektidentitet, objektversion) {
     fun copy(): Fastighet2 {
-        val mapper = ObjectMapper()
+        val mapper = jacksonObjectMapper()
         val str = mapper.writeValueAsString(this)
         val obj = mapper.readValue(str, Fastighet2::class.java)
 
