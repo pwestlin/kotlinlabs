@@ -58,4 +58,27 @@ class LambdasTest {
         val function = { 1 / 0 }
         println(runLambda(function))
     }
+
+    @Suppress("SimplifyBooleanWithConstants")
+    @Test
+    fun `do something`() {
+        fun doSomethingIfSomething(someCondition: () -> Boolean, doSomething: () -> Unit) {
+            if (someCondition()) doSomething()
+        }
+
+        doSomethingIfSomething({ 4 / 2 == 1 }, { println("Doing something!") })
+        doSomethingIfSomething({ 4 / 2 == 2 }, { println("Doing something!") })
+    }
+
+    @Suppress("SimplifyBooleanWithConstants")
+    @Test
+    fun `do something if else`() {
+        fun <T> doSomethingIfSomethingOrElseSomethingElse(someCondition: () -> Boolean, doSomething: () -> T, doSomethingElse: () -> T) : T {
+            return if (someCondition()) doSomething() else doSomethingElse()
+        }
+
+        println(doSomethingIfSomethingOrElseSomethingElse({ 4 / 2 == 1 }, { "Correct!" }, {"Uncorrect"}))
+        println(doSomethingIfSomethingOrElseSomethingElse({ 4 / 2 == 2 }, { "Correct!" }, {"Uncorrect"}))
+    }
+
 }
