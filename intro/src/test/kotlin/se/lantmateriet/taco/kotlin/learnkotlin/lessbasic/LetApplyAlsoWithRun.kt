@@ -30,6 +30,9 @@ class LetTest {
 }
 
 class ApplyTest {
+
+    // apply is useful if you need to call several methods on an object without caring for their return, like setters.
+    
     @Test
     fun `apply it`() {
         val person = Person().apply {
@@ -43,6 +46,8 @@ class ApplyTest {
 }
 
 class AlsoTest {
+
+    // also is useful if you have a value that you need to return, but before returning you also need to use it to do something else.
     @Test
     fun `also it`() {
         Person("Rory", "Racer")
@@ -64,8 +69,14 @@ class WithTest {
 
 class RunTest {
 
+    // run is useful if at the end calling a few methods on the object and then one that return something else.
+
     @Test
     fun `scope local variable`() {
-        // TODO petves: impl
+        val s = "Apple"
+        assertThat(s.run {
+            println(this)
+            this.length
+        }).isEqualTo(s.length)
     }
 }
