@@ -157,6 +157,7 @@ class LessBasicTest {
             }).isEqualTo(foo)
     }
 
+    @Suppress("ComplexRedundantLet", "ComplexRedundantLet")
     @Test
     fun `combine let and also to create a dir`() {
         val path = System.getProperty("java.io.tmpdir") + "/foo/bar/foobar"
