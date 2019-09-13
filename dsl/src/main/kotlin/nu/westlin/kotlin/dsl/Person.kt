@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class Person(
     val name: String,
+    var nickNames: List<String> = listOf(),
     val dateOfBirth: LocalDate,
     var addresses: List<Address>
 )
@@ -21,15 +22,19 @@ annotation class PersonDsl
 class PersonBuilder {
 
     var name: String = ""
-
+    private val nickNames = mutableListOf<String>()
     var dateOfBirth: String = ""
+    private val addresses =  mutableListOf<Address>()
 
-    private var addresses =  mutableListOf<Address>()
+    fun nickName(block: () -> String) {
+        nickNames.add(block())
+    }
+
     fun address(block: AddressBuilder.() -> Unit) {
         addresses.add(AddressBuilder().apply(block).build())
     }
 
-    fun build(): Person = Person(name, LocalDate.parse(dateOfBirth), addresses)
+    fun build(): Person = Person(name, nickNames, LocalDate.parse(dateOfBirth), addresses)
 }
 
 @PersonDsl

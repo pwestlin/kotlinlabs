@@ -23,8 +23,12 @@ class PersonTest {
     @Test
     fun `create a person with two adresses`() {
         val person = person {
-            name = "John"
+            name = "John Doe"
             dateOfBirth = "1980-12-01"
+
+            nickName { "Jay" }
+            nickName { "The D" }
+
             address {
                 street = "Main Street"
                 number = 12
@@ -38,20 +42,22 @@ class PersonTest {
         }
 
         with(person) {
-            assertThat(name).isEqualTo("John")
+            assertThat(name).isEqualTo("John Doe")
+            assertThat(nickNames).containsExactlyInAnyOrder("Jay", "The D")
             assertThat(dateOfBirth).isEqualTo(LocalDate.parse("1980-12-01"))
-        }
-        assertThat(person.addresses).containsExactlyInAnyOrder(
-            Address(
-                street = "Main Street",
-                number = 12,
-                city = "London"
-            ),
-            Address(
-                street = "High Street",
-                number = 7,
-                city = "New York"
+
+            assertThat(addresses).containsExactlyInAnyOrder(
+                Address(
+                    street = "Main Street",
+                    number = 12,
+                    city = "London"
+                ),
+                Address(
+                    street = "High Street",
+                    number = 7,
+                    city = "New York"
+                )
             )
-        )
+        }
     }
 }
