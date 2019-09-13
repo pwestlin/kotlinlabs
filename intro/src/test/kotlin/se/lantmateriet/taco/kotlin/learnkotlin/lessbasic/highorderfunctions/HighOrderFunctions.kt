@@ -18,12 +18,18 @@ class HighOrderFunctions {
         }
     }
 
-    class FoldTest {
-        val intItems = 1..5
+    class FoldAndFilterTest {
+        private val intItems = 1..5
 
         @Test
         fun `sum ints using fold`() {
             assertThat(intItems.fold(0) { acc, e -> acc + e }).isEqualTo(15)
+        }
+
+        @Test
+        fun `sum ints using rightFold`() {
+            val items = listOf(1, 2, 3, 4, 5)
+            assertThat(items.foldRight(1) { e, acc -> acc + e }).isEqualTo(16)
         }
 
         @Test
@@ -53,9 +59,10 @@ class HighOrderFunctions {
     class MathOperationsTest {
         // x = first Int, y = second Int
         // operation = mathematical operation(function) to to on x and y
-        fun mathOperation(x: Int, y: Int, operation: (Int, Int) -> Int) = operation(x, y)
-        val addOperation = {x: Int, y: Int -> x + y}
-        val subtractOperation = {x: Int, y: Int -> x - y}
+        private fun mathOperation(x: Int, y: Int, operation: (Int, Int) -> Int) = operation(x, y)
+
+        private val addOperation = { x: Int, y: Int -> x + y }
+        private val subtractOperation = { x: Int, y: Int -> x - y }
 
         @Test
         fun `math operation function`() {
