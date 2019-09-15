@@ -69,6 +69,21 @@ class CoroutinesTest {
     }
 
     @Test
+    fun `get three values in async in different threads with return values`() {
+        val execTimes = mutableListOf<Deferred<Long>>()
+        val time = measureTimeMillis {
+            runBlocking {
+                execTimes.add(async(Dispatchers.Default) { slowAsync(3) })
+                execTimes.add(async(Dispatchers.Default) { slowAsync(2) })
+                execTimes.add(async(Dispatchers.Default) { slowAsync(1) })
+                println("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
+            }
+        }
+
+        println("Exec time sync: $time")
+    }
+
+    @Test
     fun `sdag ahadf `() {
         runBlocking {
             // this: CoroutineScope
@@ -252,16 +267,16 @@ class CoroutinesTest {
     }
 
     @Test
-    fun `test withContext`() {
-        suspend fun slowWork(jobId: Int, delay: Long = 1000) = withContext(Dispatchers.Default) {
-            Thread.sleep(delay)
-            println("Job $jobId done!")
-        }
-
+    fun `atest withContext`() {
         runBlocking {
             launch { slowWork(1)}
         }
 
+    }
+
+    suspend fun slowWork(jobId: Int, delay: Long = 1000) = withContext(Dispatchers.Default) {
+        delay(delay)
+        println("Job $jobId done!")
     }
 
     suspend fun slowAsATurtle(time: Long) {
