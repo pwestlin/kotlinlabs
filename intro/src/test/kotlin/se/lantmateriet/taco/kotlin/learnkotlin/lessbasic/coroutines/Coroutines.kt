@@ -44,9 +44,10 @@ class CoroutinesTest {
     fun `get three values in async`() {
         val time = measureTimeMillis {
             runBlocking {
-                launch { slowAsync(3) }
+                val a = launch { slowAsync(3) }
                 launch { slowAsync(2) }
                 launch { slowAsync(1) }
+                a.join()
             }
         }
 
@@ -84,7 +85,7 @@ class CoroutinesTest {
     }
 
     @Test
-    fun `sdag ahadf `() {
+    fun `Hello world! `() {
         runBlocking {
             // this: CoroutineScope
             launch {
@@ -97,7 +98,7 @@ class CoroutinesTest {
     }
 
     @Test
-    fun `sdghsh 6u hn `() {
+    fun `order of execution `() {
         runBlocking {
             // this: CoroutineScope
             launch {
@@ -105,6 +106,7 @@ class CoroutinesTest {
                 println("Task from runBlocking")
             }
 
+            // coroutinescope stops current ("parent") coroutine's exectuion
             coroutineScope {
                 // Creates a new coroutine scope
                 launch {
@@ -196,10 +198,26 @@ class CoroutinesTest {
     @Test
     fun `call three external services in parallel (with coroutines) and aggregate the result`() {
         val time = measureTimeMillis {
+            // GlobalScope.async starts a "top-level coroutine"
             val value1 = GlobalScope.async { service1() }
             val value2 = GlobalScope.async { service2() }
             val value3 = GlobalScope.async { service3() }
             runBlocking {
+                println("The answer is: ${value1.await()} ${value2.await()} ${value3.await()}")
+            }
+        }
+        println("Exec time: $time ms")
+    }
+
+    @Test
+    fun `call three external services in parallel (with coroutines) and aggregate the result 2`() {
+        val time = measureTimeMillis {
+            // Dispatchers.Default -> run on threads from default thread pool
+            runBlocking(Dispatchers.Default) {
+                // async starts a coroutine in current coroutine context (which comes from runBlocking in this case)
+                val value1 = async { service1() }
+                val value2 = async { service2() }
+                val value3 = async { service3() }
                 println("The answer is: ${value1.await()} ${value2.await()} ${value3.await()}")
             }
         }
@@ -269,14 +287,28 @@ class CoroutinesTest {
     @Test
     fun `atest withContext`() {
         runBlocking {
-            launch { slowWork(1)}
+            launch { slowWork(1) }
         }
+    }
 
+    @Test
+    fun `repeat slow work`() {
+        val times = 5
+        val delay = 1000
+        with(measureTimeMillis {
+            runBlocking {
+                repeat(times) {
+                    launch { slowWork(delay) }
+                }
+            }
+        }) {
+            println("$times execs with delay of $delay each took $this millis")
+        }
     }
 
     suspend fun slowWork(jobId: Int, delay: Long = 1000) = withContext(Dispatchers.Default) {
         delay(delay)
-        println("Job $jobId done!")
+        println("${System.currentTimeMillis().toShort()} Job $jobId done!")
     }
 
     suspend fun slowAsATurtle(time: Long) {
