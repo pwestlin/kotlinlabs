@@ -41,4 +41,12 @@ class KotlinResultTest {
 
         assertThat(string).isEqualTo("Bohoo!")
     }
+
+    @Test
+    fun `path decision with fold`() {
+        val string = Api().getResult("foo")
+            .fold({ "Wohoo!" }, { "Bohoo!" })
+
+        assertThat(string).isEqualTo("Wohoo!")
+    }
 }
