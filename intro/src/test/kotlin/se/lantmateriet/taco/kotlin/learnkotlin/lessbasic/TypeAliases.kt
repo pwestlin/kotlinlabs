@@ -10,17 +10,25 @@ typealias Address = String
 
 class TypeAliasesTest {
 
-
-    class Customer(val name: CustomerName, val address: Address)
+    data class CustomerWithTypeAliases(val name: CustomerName, val address: Address)
 
     @Test
     fun `create customer`() {
-        val customer = Customer("Kung Bore", "Kallervalla")
+        val customer = CustomerWithTypeAliases("Kung Bore", "Kallervalla")
 
         with(customer) {
             assertThat(name).isEqualTo("Kung Bore")
             assertThat(address).isEqualTo("Kallervalla")
         }
+    }
 
+    @Test
+    fun `typealiases is just ALIASES and not TYPES`() {
+        val customerName: CustomerName = "foo"
+        val address: Address = "foo"
+
+        assertThat(customerName == address).isTrue()
+
+        // A way to use actual types in a less expensive (way compared to create a class) is inline classes: https://kotlinlang.org/docs/reference/inline-classes.html
     }
 }
