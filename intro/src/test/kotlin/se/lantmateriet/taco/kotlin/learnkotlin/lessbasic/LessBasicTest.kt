@@ -255,13 +255,31 @@ class LessBasicTest {
     }
 
     @Test
-    fun `fake constructor`() {
+    fun `fake constructor with invoke`() {
         with(FooWithFakeConstructor(1, 2)) {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }
 
         with(FooWithFakeConstructor("1", "2")) {
+            assertThat(a).isEqualTo(1)
+            assertThat(b).isEqualTo(2)
+        }
+
+        with(FooWithFakeConstructor.invoke("1", "2")) {
+            assertThat(a).isEqualTo(1)
+            assertThat(b).isEqualTo(2)
+        }
+    }
+
+    // Fake constructor as top-level function
+
+    @Suppress("TestFunctionName")
+    fun FooWithFakeConstructor(pair: Pair<Int, Int>) = FooWithFakeConstructor(pair.first, pair.second)
+
+    @Test
+    fun `fake constructor with top-level function`() {
+        with(FooWithFakeConstructor(1 to 2)) {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }
