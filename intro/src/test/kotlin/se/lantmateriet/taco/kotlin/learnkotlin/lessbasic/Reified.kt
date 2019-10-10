@@ -2,14 +2,28 @@
 
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import kotlin.reflect.KClass
 
 class ReifiedTest {
 
+    fun membersOfNotReified(clazz: KClass<*>) = clazz.constructors
     inline fun <reified T> membersOf() = T::class.constructors
 
     @Test
-    fun `doStuff`() {
+    fun `non reified`() {
+        println(membersOfNotReified(StringBuilder::class).joinToString("\n"))
+    }
+
+    @Test
+    fun `reified`() {
         println(membersOf<StringBuilder>().joinToString("\n"))
+    }
+
+    @Test
+    fun `should have smae constructors`() {
+        assertThat(membersOf<StringBuilder>().joinToString(","))
+            .isEqualTo(membersOfNotReified(StringBuilder::class).joinToString(","))
     }
 }
