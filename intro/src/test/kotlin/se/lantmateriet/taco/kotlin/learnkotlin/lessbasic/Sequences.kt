@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName")
+@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName", "SameParameterValue")
 
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 
@@ -12,6 +12,7 @@ import kotlin.system.measureNanoTime
 
 class SequencesTest {
 
+    @Suppress("SimplifiableCallChain")
     @Test
     fun `map and filter a collection`() {
         var mapCount = 0
@@ -20,11 +21,13 @@ class SequencesTest {
             .map { n ->
                 println("mapping $n")
                 mapCount++
-                n * n }
-            .filter {n ->
+                n * n
+            }
+            .filter { n ->
                 println("filtering $n")
                 filterCount++
-                n < 10 }
+                n < 10
+            }
             .first()
 
         assertThat(result).isEqualTo(1)
@@ -40,11 +43,13 @@ class SequencesTest {
             .map { n ->
                 println("mapping $n")
                 mapCount++
-                n * n }
-            .filter {n ->
+                n * n
+            }
+            .filter { n ->
                 println("filtering $n")
                 filterCount++
-                n < 10 }
+                n < 10
+            }
             .first()
 
         assertThat(result).isEqualTo(1)
@@ -85,46 +90,18 @@ class SequencesTest {
         return products
     }
 
-
-    fun singleStepListProcessing(): List<Product> {
-        return productsList.filter { it.bought }
-    }
-
-    fun singleStepSequenceProcessing(): List<Product> {
-        return productsList.asSequence()
-            .filter { it.bought }
-            .toList()
-    }
-
-    fun twoStepListProcessing(): List<Int> {
-        return productsList
-            .filter { it.bought }
-            .map { it.price }
-    }
-
-    fun twoStepSequenceProcessing(): List<Int> {
-        return productsList.asSequence()
-            .filter { it.bought }
-            .map { it.price }
-            .toList()
-    }
-
-    fun threeStepListProcessing(): Double {
-        return productsList
-            .filter { it.bought }
-            .map { it.price }
-            .average()
-    }
-
-    fun threeStepSequenceProcessing(): Double {
-        return productsList.asSequence()
-            .filter { it.bought }
-            .map { it.price }
-            .average()
-    }
-
     @Test
     fun `process products with single step processing`() {
+        fun singleStepListProcessing(): List<Product> {
+            return productsList.filter { it.bought }
+        }
+
+        fun singleStepSequenceProcessing(): List<Product> {
+            return productsList.asSequence()
+                .filter { it.bought }
+                .toList()
+        }
+
         val list = measureNanoTime { singleStepListProcessing() } / productsList.size
         val sequence = measureNanoTime { singleStepSequenceProcessing() } / productsList.size
         println("List:$list ns")
@@ -133,6 +110,19 @@ class SequencesTest {
 
     @Test
     fun `process products with two step processing`() {
+        fun twoStepListProcessing(): List<Int> {
+            return productsList
+                .filter { it.bought }
+                .map { it.price }
+        }
+
+        fun twoStepSequenceProcessing(): List<Int> {
+            return productsList.asSequence()
+                .filter { it.bought }
+                .map { it.price }
+                .toList()
+        }
+
         val list = measureNanoTime { twoStepListProcessing() } / productsList.size
         val sequence = measureNanoTime { twoStepSequenceProcessing() } / productsList.size
         println("List:$list ns")
@@ -141,6 +131,20 @@ class SequencesTest {
 
     @Test
     fun `process products with three step processing`() {
+        fun threeStepListProcessing(): Double {
+            return productsList
+                .filter { it.bought }
+                .map { it.price }
+                .average()
+        }
+
+        fun threeStepSequenceProcessing(): Double {
+            return productsList.asSequence()
+                .filter { it.bought }
+                .map { it.price }
+                .average()
+        }
+
         val list = measureNanoTime { threeStepListProcessing() } / productsList.size
         val sequence = measureNanoTime { threeStepSequenceProcessing() } / productsList.size
         println("List:$list ns")
