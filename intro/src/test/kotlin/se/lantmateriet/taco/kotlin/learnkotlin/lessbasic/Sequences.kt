@@ -150,4 +150,21 @@ class SequencesTest {
         println("List:$list ns")
         println("Sequence:$sequence ns")
     }
+
+    @Test
+    fun `(some) sequences can be iterated many times (unlike Java streams)`() {
+        val sequence = sequenceOf(1, 2, 3, 4)
+        assertThat(
+            sequence
+                .filter { println("Filter $it, "); it % 2 == 0 }
+                .map { println("Map $it, "); it * 2 }
+                .toList()
+
+        ).isEqualTo(
+            sequence
+                .filter { println("Filter $it, "); it % 2 == 0 }
+                .map { println("Map $it, "); it * 2 }
+                .toList()
+        )
+    }
 }
