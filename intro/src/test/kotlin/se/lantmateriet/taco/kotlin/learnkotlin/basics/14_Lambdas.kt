@@ -73,12 +73,85 @@ class LambdasTest {
     @Suppress("SimplifyBooleanWithConstants")
     @Test
     fun `do something if else`() {
-        fun <T> doSomethingIfSomethingOrElseSomethingElse(someCondition: () -> Boolean, doSomething: () -> T, doSomethingElse: () -> T) : T {
+        fun <T> doSomethingIfSomethingOrElseSomethingElse(someCondition: () -> Boolean, doSomething: () -> T, doSomethingElse: () -> T): T {
             return if (someCondition()) doSomething() else doSomethingElse()
         }
 
-        println(doSomethingIfSomethingOrElseSomethingElse({ 4 / 2 == 1 }, { "Correct!" }, {"Uncorrect"}))
-        println(doSomethingIfSomethingOrElseSomethingElse({ 4 / 2 == 2 }, { "Correct!" }, {"Uncorrect"}))
+        println(doSomethingIfSomethingOrElseSomethingElse({ 4 / 2 == 1 }, { "Correct!" }, { "Uncorrect" }))
+        println(doSomethingIfSomethingOrElseSomethingElse({ 4 / 2 == 2 }, { "Correct!" }, { "Uncorrect" }))
     }
 
+    @Test
+    fun `lambda extension`() {
+        class Status(var code: Int, var description: String)
+
+        fun status(status: Status.() -> Unit) {}
+        // This will allow the following statement
+        status {
+            code = 404
+            description = "Not found"
+        }
+    }
+
+    @Test
+    fun `misc lambdas`() {
+        val plus = { a: Int, b: Int -> a + b }
+        assertThat(plus(2, 5)).isEqualTo(7)
+
+        val square = { int: Int -> int * int }
+        assertThat(square(9)).isEqualTo(81)
+        // If we specify type we can refer to the (only) param as it
+        val square2: (Int) -> Int = { it * it }
+        assertThat(square2(9)).isEqualTo(81)
+
+        // Param: lambda with Int-param that results in an Int, return type: Int
+        val apply5: ((Int) -> Int) -> Int = { it(5) }
+        assertThat(apply5 { it + it }).isEqualTo(10)
+        assertThat(apply5 { square(it) }).isEqualTo(25)
+        assertThat(apply5 { square2(it) }).isEqualTo(25)
+
+        // Param: Int, return type: lambda with Int-param that result in an Int
+        val applySum: (Int) -> ((Int) -> Int) =
+            { x -> { it + x } }
+        assertThat(applySum(5)(9)).isEqualTo(14)
+
+        // Param: Lambda with param Int and result type Int, Result: Lambda with param Int and result type Int
+        val applyInverse: ((Int) -> Int) -> ((Int) -> Int) =
+            { f -> { -1 * f(it) } }
+        assertThat(applyInverse { it + 5 }(5)).isEqualTo(-10)
+    }
+
+    @Test
+    // https://proandroiddev.com/kotlin-pearls-lambdas-with-a-context-58f26ab2eb1d
+    fun `function literals with a receiver`() {
+        fun square(x: Int): Int = x * x
+        fun squared(a: Int, f: (Int) -> Int): Int = f(square(a))
+        fun squared2(a: Int, f: Int.() -> Int): Int = f(square(a))
+
+        assertThat(square(3)).isEqualTo(9)
+        assertThat(squared(3, { it + 3 })).isEqualTo(12)
+        assertThat(squared2(3, { this + 3 })).isEqualTo(12)
+
+
+        class Car {
+            fun forward() {}
+            fun backward() {}
+            fun left() {}
+            fun right() {}
+        }
+
+        class CarService {
+            fun drive(block: Car.() -> Unit) {
+                val car = Car()
+                block(car)
+            }
+        }
+
+        CarService().drive {
+            left()
+            forward()
+            right()
+            forward()
+        }
+    }
 }

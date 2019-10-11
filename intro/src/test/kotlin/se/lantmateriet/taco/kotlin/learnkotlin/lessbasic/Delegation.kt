@@ -3,6 +3,34 @@ package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
+interface Squarer {
+    fun square(value: () -> Int): Int
+}
+
+class Stuff : Squarer {
+    override fun square(value: () -> Int): Int {
+        return with(value()) {
+            this * this
+        }
+    }
+}
+
+class OtherStuff : Squarer by Stuff()
+class AnotherStuff(stuff: Stuff) : Squarer by stuff
+
+internal class StuffDelegationTest {
+
+    @Test
+    fun `other stuff delegation test`() {
+        assertThat(OtherStuff().square { 5 }).isEqualTo(25)
+    }
+
+    @Test
+    fun `another stuff delegation test`() {
+        assertThat(AnotherStuff(Stuff()).square { 5 }).isEqualTo(25)
+    }
+}
+
 interface Engine {
     fun power(): Int
 }
