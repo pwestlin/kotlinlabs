@@ -22,17 +22,18 @@ class LetTest {
     fun `let instead of local val`() {
         fun returnString() = "foo"
 
-        returnString().let {
+        val result = returnString().let {
             println("length of '$it' is ${it.length}")
             println("Upper case of '$it' is ${it.toUpperCase()}")
         }
+        assertThat(result).isInstanceOf(Unit::class.java)
     }
 }
 
 class ApplyTest {
 
     // apply is useful if you need to call several methods on an object without caring for their return, like setters.
-    
+
     @Test
     fun `apply it`() {
         val person = Person().apply {
@@ -50,9 +51,10 @@ class AlsoTest {
     // also is useful if you have a value that you need to return, but before returning you also need to use it to do something else.
     @Test
     fun `also it`() {
-        Person("Rory", "Racer")
+        val result = Person("Rory", "Racer")
             .also { println(it.firstname) }
             .also { println(it.surname) }
+        assertThat(result).isInstanceOf(Person::class.java)
     }
 }
 
@@ -60,10 +62,12 @@ class WithTest {
 
     @Test
     fun `with object`() {
-        with(Person("Rory", "Racer")) {
+        val string = with(Person("Rory", "Racer")) {
             assertThat(firstname).isEqualTo("Rory")
             assertThat(surname).isEqualTo("Racer")
+            "foo"
         }
+        assertThat(string).isEqualTo("foo")
     }
 }
 
@@ -73,10 +77,10 @@ class RunTest {
 
     @Test
     fun `scope local variable`() {
-        val s = "Apple"
-        assertThat(s.run {
+        val length = "Apple".run {
             println(this)
             this.length
-        }).isEqualTo(s.length)
+        }
+        assertThat(length).isEqualTo(5)
     }
 }

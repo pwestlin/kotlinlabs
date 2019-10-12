@@ -121,6 +121,33 @@ class LambdasTest {
         assertThat(applyInverse { it + 5 }(5)).isEqualTo(-10)
     }
 
+    // A lambda with a receiver allows you to call methods of an object in the body of a lambda without any qualifiers.
+
+    @Test
+    fun `lambda with a receiver`() {
+        fun <T, R> doWith(receiver: T, block: T.() -> R): R {
+            return receiver.block()
+        }
+
+        val string = "foo"
+        val newString = doWith(string) {
+            plus("bar")
+        }
+
+        assertThat(newString).isEqualTo("foobar")
+
+        val stringBuilder = StringBuilder("foo")
+        doWith(stringBuilder) {
+            append("bar")
+            append("rab")
+            append("oof")
+        }
+
+        assertThat(stringBuilder.toString()).isEqualTo("foobarraboof")
+
+        // Actually, doWith above is exactly the same impl. as Kotlins built-in with :)
+    }
+
     @Test
     // https://proandroiddev.com/kotlin-pearls-lambdas-with-a-context-58f26ab2eb1d
     fun `function literals with a receiver`() {
