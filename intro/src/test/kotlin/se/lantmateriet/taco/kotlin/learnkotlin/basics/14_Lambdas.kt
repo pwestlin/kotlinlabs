@@ -181,4 +181,35 @@ class LambdasTest {
             forward()
         }
     }
+
+    @Test
+    fun `some DSL fun with receivers`() {
+        class Engine {
+            var hp: Int? = null
+        }
+        class Car {
+            var engine: Engine? = null
+            var noSeats: Int? = null
+
+            fun engine(block: Engine.() -> Unit) {
+                engine = Engine().apply(block)
+            }
+        }
+
+        fun car(block: Car.() -> Unit): Car {
+            return Car().apply(block)
+        }
+
+        val car = car {
+            engine {
+                hp = 204
+            }
+            noSeats = 5
+        }
+
+        with(car) {
+            assertThat(engine?.hp).isEqualTo(204)
+            assertThat(noSeats).isEqualTo(5)
+        }
+    }
 }
