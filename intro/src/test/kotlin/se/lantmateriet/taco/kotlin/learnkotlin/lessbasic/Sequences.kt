@@ -167,4 +167,20 @@ class SequencesTest {
                 .toList()
         )
     }
+
+    @Test
+    fun `sequence with yield`() {
+        val sequence = sequence {
+            yield(22)
+            yield("foo")
+            yieldAll(2..8 step 2)
+            yield("Kotlin")
+            yield("rocks!")
+        }
+
+        assertThat(sequence.take(1).toList()).containsExactly(22)
+        assertThat(sequence.take(2).toList()).containsExactly(22, "foo")
+        assertThat(sequence.take(6).toList()).containsExactly(22, "foo", 2, 4, 6 ,8)
+        assertThat(sequence.toList()).containsExactly(22, "foo", 2, 4, 6 ,8, "Kotlin", "rocks!")
+    }
 }
