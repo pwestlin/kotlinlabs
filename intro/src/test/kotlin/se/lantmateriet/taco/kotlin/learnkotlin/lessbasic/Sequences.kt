@@ -180,7 +180,7 @@ class SequencesTest {
 
         assertThat(sequence.take(1).toList()).containsExactly(22)
         assertThat(sequence.take(2).toList()).containsExactly(22, "foo")
-        assertThat(sequence.take(6).toList()).containsExactly(22, "foo", 2, 4, 6 ,8)
-        assertThat(sequence.toList()).containsExactly(22, "foo", 2, 4, 6 ,8, "Kotlin", "rocks!")
+        assertThat(sequence.take(6).toList()).containsExactly(22, "foo", 2, 4, 6, 8)
+        assertThat(sequence.toList()).containsExactly(22, "foo", 2, 4, 6, 8, "Kotlin", "rocks!")
     }
 }
