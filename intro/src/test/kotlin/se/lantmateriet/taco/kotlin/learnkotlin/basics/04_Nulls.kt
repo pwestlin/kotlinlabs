@@ -97,18 +97,18 @@ class NullsTest {
         }
 
         value = "foo"
-        value?.let {
-            println("Inte null")
+        value?.let { foo ->
+            println("Inte null utan $foo")
         }
 
-        // ?let är alltså samma sak som
+        // ?.let är alltså samma sak som
         if (value != null) {
             println("Inte null")
         }
     }
 
     @Test
-    fun `OrElse, OrElseThrow`() {
+    fun `OrElse, OrElseThrow i Java`() {
         fun canReturnNull(string: String?) = string
 
         // ?: i kotlin är samma som Javas .orElse(...)

@@ -83,7 +83,7 @@ class FunctionsTest {
 
     @Test
     fun `named parameters`() {
-        fun division(taljare: Int, namnare: Int) = taljare/namnare
+        fun division(taljare: Int, namnare: Int) = taljare / namnare
 
         assertThat(division(10, 2)).isEqualTo(5)
         assertThat(division(taljare = 10, namnare = 2)).isEqualTo(5)
@@ -136,14 +136,45 @@ class FunctionsTest {
         assertThat(firstname).isEqualTo("Boom")
         assertThat(lastname).isEqualTo("Bastic")
     }
+
+
+    // Överkurs
+
+    @Test
+    fun `list extension`() {
+        fun <T> List<T>.doStuff(operations: (List<T>) -> Unit) {
+            operations(this)
+        }
+
+        val listOfStrings = listOf("Foo", "bar", "färdtjänst")
+        listOfStrings.doStuff {
+            println("size = ${it.size}")
+            println("first() = ${it.first()}")
+            println("last() = ${it.last()}")
+        }
+    }
+
+    @Test
+    fun `list extension with a receiver`() {
+        fun <T> List<T>.doStuff(operations: List<T>.() -> Unit) {
+            operations()
+        }
+
+        val listOfStrings = listOf("Foo", "bar", "färdtjänst")
+        listOfStrings.doStuff {
+            println("size = $size")
+            println("first() = ${first()}")
+            println("last() = ${last()}")
+        }
+    }
+
 }
 
 
-
-
-
 // "Message: $message" -> String template
-fun topLevelFunctionUtil(message: String) { println("Message: $message")}
+fun topLevelFunctionUtil(message: String) {
+    println("Message: $message")
+}
 
 object ObjectUtil {
     fun log(message: String) {

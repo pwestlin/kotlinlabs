@@ -14,6 +14,7 @@ import java.io.File
 
 class WhenTest {
 
+    @Suppress("MoveVariableDeclarationIntoWhen")
     @Test
     // Jämför med Javas switch
     fun `when expressions`() {
@@ -87,8 +88,15 @@ class WhenTest {
             string == "bar" -> true
             else -> false
         }
-
         assertThat(isFooOrBar).isFalse()
+
+        // ...or a better form: "when with subject"
+        val isFooOrBar2 = when (string) {
+            "foo" -> true
+            "bar" -> true
+            else -> false
+        }
+        assertThat(isFooOrBar2).isFalse()
     }
 
     @Test
@@ -107,7 +115,7 @@ class WhenTest {
     }
 
     // When and exhaustive: https://proandroiddev.com/til-when-is-when-exhaustive-31d69f630a8b
-    data class Result(val type: Type) {
+    private data class Result(val type: Type) {
         enum class Type {
             SUCCESS, ERROR
         }

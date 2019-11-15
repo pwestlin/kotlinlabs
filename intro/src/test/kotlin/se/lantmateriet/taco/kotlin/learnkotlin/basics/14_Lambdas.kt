@@ -3,7 +3,9 @@
 package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import java.time.Instant
 
 class LambdasTest {
 
@@ -53,10 +55,22 @@ class LambdasTest {
     @Suppress("DIVISION_BY_ZERO")
     @Test
     fun `when does a lambda run?`() {
-        fun <R> runLambda(function: () -> R) = function()
+        fun divisionByZero(): Int {
+            println("${Instant.now()}: Doing calculation")
+            return 1 / 0
+        }
 
-        val function = { 1 / 0 }
-        println(runLambda(function))
+        println("${Instant.now()}: Before runValue")
+        fun runValue(int: Int) = int
+
+        assertThatThrownBy { runValue(divisionByZero()) }
+            .isInstanceOf(ArithmeticException::class.java)
+
+        fun <R> runLambda(function: () -> R) = function()
+        println("${Instant.now()}: Before runValue")
+        assertThatThrownBy { runLambda({ divisionByZero() }) }
+            .isInstanceOf(ArithmeticException::class.java)
+
     }
 
     @Suppress("SimplifyBooleanWithConstants")
@@ -187,6 +201,7 @@ class LambdasTest {
         class Engine {
             var hp: Int? = null
         }
+
         class Car {
             var engine: Engine? = null
             var noSeats: Int? = null

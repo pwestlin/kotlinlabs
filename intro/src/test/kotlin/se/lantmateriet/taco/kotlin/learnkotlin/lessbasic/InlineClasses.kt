@@ -28,11 +28,14 @@ internal class InlineClassesTest {
 
     @Test
     fun `inline class`() {
-       class Person(val firstname: Firstname, val lastname: Lastname)
+       class Person(val firstname: Firstname, val lastname: Lastname) {
+           fun theFirstname() = firstname
+       }
 
         with(Person(Firstname("Jane"), Lastname("Doh"))) {
             assertThat(this.firstname.value).isEqualTo("Jane")
             assertThat(this.lastname.value).isEqualTo("Doh")
+            assertThat(this.theFirstname().value).isEqualTo("Jane")
         }
     }
 }

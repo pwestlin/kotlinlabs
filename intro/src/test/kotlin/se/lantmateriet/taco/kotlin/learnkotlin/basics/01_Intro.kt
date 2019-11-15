@@ -24,12 +24,11 @@ class Foo
 // Ja, man kan ha flera klasser per Kotlin-fil
 class Bar
 
-
 data class Bil(val modell: String?)
-
 
 class BilTest {
 
+    // Extension function (se 15_ExtensionFunctions.kt)
     private fun Bil.finModell() = this.modell?.let { "Modell: $modell" } ?: "ingen"
 
     @Test
