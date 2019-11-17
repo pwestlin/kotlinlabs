@@ -77,6 +77,4 @@ class HighOrderFunctions {
             assertThat(addOperation(7, 3)).isEqualTo(10)
         }
     }
-
-    // TODO peter: Example with class that needs a logger wich can be file, console or other
 }
