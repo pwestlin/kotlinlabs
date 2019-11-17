@@ -228,3 +228,50 @@ class LambdasTest {
         }
     }
 }
+
+internal class FunctionReferenceAndCompositionTest {
+
+    private data class Book(val name: String = "The Book", val price: Double = 22.55, val weight: Double = 0.68)
+
+    private val book1 = Book("Another book", 1.11, 1.63)
+    private val book2 = Book("Another book", 2.22, 2.63)
+    private val book3 = Book("Another book", 3.33, 3.63)
+    private val book4 = Book("Another book", 11.11, 4.63)
+    private val book5 = Book("Another book", 22.22, 5.63)
+
+    private val books = listOf(book1, book2, book3, book4, book5)
+
+    private fun weight(book: Book) = book.weight
+    private fun price(book: Book) = book.price
+    private fun heavy(book: Book) = book.weight > 3
+    private fun cheap(book: Book) = book.price < 10
+
+    @Test
+    fun `function reference`() {
+        val weightFun = ::weight
+        assertThat(weightFun(Book())).isEqualTo(0.68)
+
+        val priceFun = ::price
+        assertThat(priceFun(Book())).isEqualTo(22.55)
+
+        assertThat(books.filter(::heavy)).containsExactlyInAnyOrder(book3, book4, book5)
+
+        assertThat(books.filter(::cheap)).containsExactlyInAnyOrder(book1, book2, book3)
+    }
+
+    @Test
+    fun `function composition`() {
+        fun isOdd(x: Int) = x % 2 != 0
+        fun length(s: String) = s.length
+
+        fun <A, B, C> compose(f: (B) -> C, g: (A) -> B): (A) -> C {
+            // first execute function g with param x and then execute function f with the result of g(x) as param
+            return { x -> f(g(x)) }
+        }
+
+        val oddLength = compose(::isOdd, ::length)
+        val strings = listOf("a", "ab", "abc")
+        println(strings.filter(oddLength))
+    }
+
+}
