@@ -2,6 +2,8 @@
 
 package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
+import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -226,6 +228,32 @@ class LambdasTest {
             assertThat(engine?.hp).isEqualTo(204)
             assertThat(noSeats).isEqualTo(5)
         }
+
+        @Test
+        fun `lambdas are "lazy"`() {
+            class Logger(private val level: String) {
+                fun log(level: String, message: String) {
+                    if (level == this.level) println(message)
+                }
+
+                fun log(level: String, f: () -> String) {
+                    if (level == this.level) println(f())
+                }
+            }
+
+            class Foo {
+                fun bar(string: String) = string
+            }
+
+            val foo = mockk<Foo>(relaxed = true)
+
+            val logger = Logger("INFO")
+            logger.log("DEBUG", foo.bar("another string"))
+            logger.log("DEBUG") { foo.bar("a string") }
+
+            verify(exactly = 0) { foo.bar("a string") }
+            verify(exactly = 1) { foo.bar("another string") }
+        }
     }
 }
 
@@ -273,5 +301,4 @@ internal class FunctionReferenceAndCompositionTest {
         val strings = listOf("a", "ab", "abc")
         println(strings.filter(oddLength))
     }
-
 }
