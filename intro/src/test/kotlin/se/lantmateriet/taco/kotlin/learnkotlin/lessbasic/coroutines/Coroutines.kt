@@ -12,10 +12,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 class CoroutinesTest {
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     fun slowSync(execTime: Long): Long {
         Thread.sleep(execTime * 1000)
@@ -30,12 +34,12 @@ class CoroutinesTest {
             sumOfExecTimes += slowSync(2)
             sumOfExecTimes += slowSync(1)
         }
-        println("Sum of exec times: ${sumOfExecTimes * 1000}")
-        println("Exec time sync: $time")
+        log("Sum of exec times: ${sumOfExecTimes * 1000}")
+        log("Exec time sync: $time")
     }
 
     suspend fun slowAsync(execTime: Long): Long {
-        println("slowAsync: ${Thread.currentThread()}")
+        log("slowAsync: ${Thread.currentThread()}")
         delay(execTime * 1000)
         return execTime
     }
@@ -51,7 +55,7 @@ class CoroutinesTest {
             }
         }
 
-        println("Exec time sync: $time")
+        log("Exec time sync: $time")
     }
 
     @Test
@@ -62,11 +66,11 @@ class CoroutinesTest {
                 execTimes.add(async { slowAsync(3) })
                 execTimes.add(async { slowAsync(2) })
                 execTimes.add(async { slowAsync(1) })
-                println("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
+                log("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
             }
         }
 
-        println("Exec time sync: $time")
+        log("Exec time sync: $time")
     }
 
     @Test
@@ -77,11 +81,11 @@ class CoroutinesTest {
                 execTimes.add(async(Dispatchers.Default) { slowAsync(3) })
                 execTimes.add(async(Dispatchers.Default) { slowAsync(2) })
                 execTimes.add(async(Dispatchers.Default) { slowAsync(1) })
-                println("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
+                log("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
             }
         }
 
-        println("Exec time sync: $time")
+        log("Exec time sync: $time")
     }
 
     @Test
@@ -91,9 +95,9 @@ class CoroutinesTest {
             launch {
                 // launch new coroutine in the scope of runBlocking
                 delay(1000L)
-                println("World!")
+                log("World!")
             }
-            println("Hello,")
+            log("Hello,")
         }
     }
 
@@ -103,7 +107,7 @@ class CoroutinesTest {
             // this: CoroutineScope
             launch {
                 delay(200L)
-                println("Task from runBlocking")
+                log("Task from runBlocking")
             }
 
             // coroutinescope stops current ("parent") coroutine's exectuion
@@ -111,35 +115,34 @@ class CoroutinesTest {
                 // Creates a new coroutine scope
                 launch {
                     delay(500L)
-                    println("Task from nested launch")
+                    log("Task from nested launch")
                 }
 
                 delay(100L)
-                println("Task from coroutine scope") // This line will be printed before nested launch
+                log("Task from coroutine scope") // This line will be printed before nested launch
             }
 
-            println("Coroutine scope is over") // This line is not printed until nested launch completes
+            log("Coroutine scope is over") // This line is not printed until nested launch completes
         }
     }
 
     @Test
     fun `test launch`() {
         fun doSomething() {
-            println("1: ${Thread.currentThread()}")
+            log("1")
         }
 
 
-        println(Thread.currentThread())
         runBlocking {
-            println("2: ${Thread.currentThread()}")
+            log("2")
             launch {
-                println("3: ${Thread.currentThread()}")
+                log("3")
                 doSomething()
-                println("4: ${Thread.currentThread()}")
+                log("4")
             }
-            println("5: ${Thread.currentThread()}")
+            log("5")
         }
-        println("6: ${Thread.currentThread()}")
+        log("6")
     }
 
 
@@ -157,7 +160,7 @@ class CoroutinesTest {
                 }
             }
         }
-        println("Created $numberOfThreads threads in ${time}ms.")
+        log("Created $numberOfThreads threads in ${time}ms.")
     }
 
     @Test
@@ -174,7 +177,7 @@ class CoroutinesTest {
                 }
             }
         }
-        println("Created $numberOfCoroutines coroutines in ${time}ms.")
+        log("Created $numberOfCoroutines coroutines in ${time}ms.")
     }
 
     /*
@@ -190,27 +193,27 @@ class CoroutinesTest {
             val value2 = service2()
             val value3 = service3()
 
-            println("The answer is: $value1 $value2 $value3")
+            log("The answer is: $value1 $value2 $value3")
         }
-        println("Exec time: $time ms")
+        log("Exec time: $time ms")
     }
 
     @Test
-    fun `call three external services in parallel (with coroutines) and aggregate the result`() {
+    fun `call three external services in parallel with coroutines and aggregate the result`() {
         val time = measureTimeMillis {
             // GlobalScope.async starts a "top-level coroutine"
             val value1 = GlobalScope.async { service1() }
             val value2 = GlobalScope.async { service2() }
             val value3 = GlobalScope.async { service3() }
             runBlocking {
-                println("The answer is: ${value1.await()} ${value2.await()} ${value3.await()}")
+                log("The answer is: ${value1.await()} ${value2.await()} ${value3.await()}")
             }
         }
-        println("Exec time: $time ms")
+        log("Exec time: $time ms")
     }
 
     @Test
-    fun `call three external services in parallel (with coroutines) and aggregate the result 2`() {
+    fun `call three external services in parallel with coroutines and aggregate the result 2`() {
         val time = measureTimeMillis {
             // Dispatchers.Default -> run on threads from default thread pool
             runBlocking(Dispatchers.Default) {
@@ -218,10 +221,10 @@ class CoroutinesTest {
                 val value1 = async { service1() }
                 val value2 = async { service2() }
                 val value3 = async { service3() }
-                println("The answer is: ${value1.await()} ${value2.await()} ${value3.await()}")
+                log("The answer is: ${value1.await()} ${value2.await()} ${value3.await()}")
             }
         }
-        println("Exec time: $time ms")
+        log("Exec time: $time ms")
     }
 
     @Test
@@ -231,32 +234,35 @@ class CoroutinesTest {
             launch {
                 // launch new coroutine in the scope of runBlocking
                 delay(1000L)
-                print("World!")
+                log("World!")
             }
             launch {
                 // launch new coroutine in the scope of runBlocking
                 delay(750L)
-                print(", ")
+                log(", ")
             }
             launch {
                 // launch new coroutine in the scope of runBlocking
                 delay(500L)
-                print("Hello")
+                log("Hello")
             }
         }
     }
 
     fun service1(): String {
+        logger.info("service1")
         doSillyStuff()
         return "Finns"
     }
 
     fun service2(): String {
+        logger.info("service2")
         doSillyStuff()
         return "i"
     }
 
     fun service3(): String {
+        logger.info("service3")
         doSillyStuff()
         return "sjön"
     }
@@ -276,12 +282,12 @@ class CoroutinesTest {
                     // launch a lot of coroutines
                     launch {
                         slowAsATurtle(1000L)
-                        print(".")
+                        log(".")
                     }
                 }
             }
         }
-        println("\ntime = $time ms")
+        log("\ntime = $time ms")
     }
 
     @Test
@@ -302,16 +308,20 @@ class CoroutinesTest {
                 }
             }
         }) {
-            println("$times execs with delay of $delay each took $this millis")
+            log("$times execs with delay of $delay each took $this millis")
         }
     }
 
     suspend fun slowWork(jobId: Int, delay: Long = 1000) = withContext(Dispatchers.Default) {
         delay(delay)
-        println("${System.currentTimeMillis().toShort()} Job $jobId done!")
+        log("${System.currentTimeMillis().toShort()} Job $jobId done!")
     }
 
     suspend fun slowAsATurtle(time: Long) {
         delay(time)
     }
+}
+
+fun log(msg: String)  {
+    println("${Instant.now()}: $msg - ${Thread.currentThread()}")
 }
