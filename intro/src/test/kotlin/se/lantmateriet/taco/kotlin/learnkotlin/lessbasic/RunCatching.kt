@@ -15,6 +15,23 @@ internal class RunCatching {
     private val service = Service()
 
     @Test
+    fun `test runCatching`() {
+        fun divide(dividend: Int, divisor: Int): Int = dividend / divisor
+
+        println(divide(4, 2))
+        println(divide(4, 3))
+
+        runCatching { divide(4, 2) }.fold(
+            { println("Det gick skitfint och resultatet blev $it") },
+            { println("Det gick skitdåligt pga $it") }
+        )
+        runCatching { divide(4, 0) }.fold(
+            { println("Det gick skitfint och resultatet blev $it") },
+            { println("Det gick skitdåligt pga $it") }
+        )
+    }
+
+    @Test
     fun `doSomething nice`() {
         with("nice stuff") {
             assertThat(service.doSomething(this)).isEqualTo(this)
