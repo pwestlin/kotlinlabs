@@ -4,6 +4,7 @@ package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.Error
 
 
 /*
@@ -78,5 +79,24 @@ class SealedDataClassesTest {
     @Test
     fun `pineapple is never good`() {
         assertThat(Fruit.Pineapple.isGood).isFalse()
+    }
+}
+
+sealed class ApplicationError(open val message: String?) {
+
+    object LoginError: ApplicationError(null)
+    data class PostFormError(override val message: String): ApplicationError(message)
+}
+
+class ApplicationErrorTest {
+
+    @Test
+    fun `login error`() {
+        assertThat(ApplicationError.LoginError.message).isNull()
+    }
+
+    @Test
+    fun `post form error`() {
+        assertThat(ApplicationError.PostFormError("You prvided bad data").message).isEqualTo("You prvided bad data")
     }
 }
