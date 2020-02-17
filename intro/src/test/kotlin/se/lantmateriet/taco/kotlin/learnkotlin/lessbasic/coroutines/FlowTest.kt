@@ -60,6 +60,6 @@ internal class FlowTest {
     }
 
     private fun log(message: String) {
-        println("${Instant.now()} - $message : ${Thread.currentThread()}")
+        println("${Instant.now()} - $message : ${Thread.currentThread().name}")
     }
 }
