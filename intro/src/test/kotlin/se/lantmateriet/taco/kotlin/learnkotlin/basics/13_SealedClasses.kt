@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName", "CanSealedSubClassBeObject")
+@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName", "CanSealedSubClassBeObject", "UsePropertyAccessSyntax")
 
 package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
@@ -22,8 +22,8 @@ class Adam : OffspringOfPeters("Adam", 14)
 class Felix : OffspringOfPeters("Felix", 11)
 
 sealed class Car {
-    class Volvo : Car()
-    class Saab : Car()
+    object Volvo : Car()
+    object  Saab : Car()
 }
 
 class SealedClassesTest {
@@ -51,11 +51,32 @@ class SealedClassesTest {
             is Car.Saab -> false
         }
 
-        assertThat(gettingUpdates(Car.Volvo())).isTrue()
-        assertThat(gettingUpdates(Car.Saab())).isFalse()
+        assertThat(gettingUpdates(Car.Volvo)).isTrue()
+        assertThat(gettingUpdates(Car.Saab)).isFalse()
 
     }
 
 }
 
+sealed class Fruit(open val isGood: Boolean) {
+    data class Apple(override val isGood: Boolean): Fruit(isGood)
+    object Pineapple: Fruit(false)
+}
 
+class SealedDataClassesTest {
+
+    @Test
+    fun `a good apple`() {
+        assertThat(Fruit.Apple(true).isGood).isTrue()
+    }
+
+    @Test
+    fun `a bad apple`() {
+        assertThat(Fruit.Apple(false).isGood).isTrue()
+    }
+
+    @Test
+    fun `pineapple is never good`() {
+        assertThat(Fruit.Pineapple.isGood).isFalse()
+    }
+}
