@@ -11,6 +11,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
@@ -20,6 +21,7 @@ import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
+@ObsoleteCoroutinesApi
 class CoroutinesTest {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -338,7 +340,21 @@ class CoroutinesTest {
         }
     }
 
-    @ObsoleteCoroutinesApi
+    @Test
+    fun `jump between threads`() {
+        newSingleThreadContext("Ctx1").use { ctx1 ->
+            newSingleThreadContext("Ctx2").use { ctx2 ->
+                runBlocking(ctx1) {
+                    log("Started in ctx1")
+                    withContext(ctx2) {
+                        log("Working in ctx2")
+                    }
+                    log("Back to ctx1")
+                }
+            }
+        }
+    }
+
     @Test
     fun `try newFixedThreadPoolContext`() {
         val dispatcher = newFixedThreadPoolContext(1, "fisk")
