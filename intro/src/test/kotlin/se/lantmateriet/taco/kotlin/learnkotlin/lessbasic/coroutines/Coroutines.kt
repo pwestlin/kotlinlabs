@@ -5,10 +5,12 @@ package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.coroutines
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
@@ -39,7 +41,7 @@ class CoroutinesTest {
     }
 
     suspend fun slowAsync(execTime: Long): Long {
-        log("slowAsync: ${Thread.currentThread()}")
+        log("slowAsync")
         delay(execTime * 1000)
         return execTime
     }
@@ -312,6 +314,48 @@ class CoroutinesTest {
         }
     }
 
+    @Test
+    fun `try Dispatchers`() = runBlocking<Unit> {
+        launch(Dispatchers.Unconfined) { // not confined -- will work with main thread
+            println("Unconfined      : I'm working in thread ${Thread.currentThread().name}")
+            delay(500)
+            println("Unconfined      : After delay in thread ${Thread.currentThread().name}")
+        }
+        launch(Dispatchers.Default) { // not confined -- will work with main thread
+            println("Default         : I'm working in thread ${Thread.currentThread().name}")
+            delay(500)
+            println("Default         : After delay in thread ${Thread.currentThread().name}")
+        }
+        launch(Dispatchers.IO) { // not confined -- will work with main thread
+            println("IO              : I'm working in thread ${Thread.currentThread().name}")
+            delay(500)
+            println("IO              : After delay in thread ${Thread.currentThread().name}")
+        }
+        launch { // context of the parent, main runBlocking coroutine
+            println("main runBlocking: I'm working in thread ${Thread.currentThread().name}")
+            delay(1000)
+            println("main runBlocking: After delay in thread ${Thread.currentThread().name}")
+        }
+    }
+
+    @ObsoleteCoroutinesApi
+    @Test
+    fun `try newFixedThreadPoolContext`() {
+        val dispatcher = newFixedThreadPoolContext(1, "fisk")
+        val execTime = measureTimeMillis {
+            runBlocking {
+                repeat(1000) {
+                    launch(dispatcher) {
+                        println("hej - ${Thread.currentThread().name}")
+                        delay(500)
+                    }
+                }
+            }
+        }
+
+        println("execTime = $execTime")
+    }
+
     suspend fun slowWork(jobId: Int, delay: Long = 1000) = withContext(Dispatchers.Default) {
         delay(delay)
         log("${System.currentTimeMillis().toShort()} Job $jobId done!")
@@ -322,6 +366,6 @@ class CoroutinesTest {
     }
 }
 
-fun log(msg: String)  {
-    println("${Instant.now()}: $msg - ${Thread.currentThread()}")
+fun log(msg: String) {
+    println("${Instant.now()}: $msg - ${Thread.currentThread().name}")
 }
