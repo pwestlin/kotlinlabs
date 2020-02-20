@@ -333,6 +333,11 @@ class CoroutinesTest {
             delay(500)
             println("IO              : After delay in thread ${Thread.currentThread().name}")
         }
+        launch(newFixedThreadPoolContext(10, "Foo")) { // context of the parent, main runBlocking coroutine
+            println("Fixed pool      : I'm working in thread ${Thread.currentThread().name}")
+            delay(1000)
+            println("Fixed pool      : After delay in thread ${Thread.currentThread().name}")
+        }
         launch { // context of the parent, main runBlocking coroutine
             println("main runBlocking: I'm working in thread ${Thread.currentThread().name}")
             delay(1000)
