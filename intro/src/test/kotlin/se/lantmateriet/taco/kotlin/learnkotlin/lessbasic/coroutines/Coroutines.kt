@@ -1,4 +1,4 @@
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "PackageName")
+@file:Suppress("EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "PackageName", "TestFunctionName", "NonAsciiCharacters", "SameParameterValue")
 
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.coroutines
 
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
@@ -182,6 +183,173 @@ class CoroutinesTest {
             }
         }
         log("Created $numberOfCoroutines coroutines in ${time}ms.")
+    }
+
+    @Test
+    fun `sekventiell exekvering av hårt internt arbete`() {
+        var counter = 0
+        val numberOfCoroutines = 5
+        val time = measureTimeMillis {
+            runBlocking {
+                repeat(numberOfCoroutines) {
+                    // launch a lot of coroutines
+                    launch {
+                        log("Exekverar coroutine #$counter...")
+                        simuleraHårtInterntArbete(1000)
+                        log("Coroutine #$counter klar!")
+                        counter += 1
+                    }
+                }
+            }
+        }
+        log("Created $numberOfCoroutines coroutines in ${time}ms.")
+    }
+
+    @Test
+    fun `exekvering på flera trådar av hårt internt arbete`() {
+        val counter = AtomicInteger()
+        val numberOfCoroutines = 5
+        val time = measureTimeMillis {
+            runBlocking(Dispatchers.Default) {
+                repeat(numberOfCoroutines) {
+                    launch {
+                        val internalCounter = counter.getAndIncrement()
+                        log("Exekverar coroutine #$internalCounter...")
+                        simuleraHårtInterntArbete(1000)
+                        log("Coroutine #$internalCounter klar!")
+
+                    }
+                }
+            }
+        }
+        log("Created $numberOfCoroutines coroutines in ${time}ms.")
+    }
+
+    @Test
+    fun `sekventiell exekvering av hårt externt arbete`() {
+        val counter = AtomicInteger()
+        val numberOfCoroutines = 5
+        val time = measureTimeMillis {
+            runBlocking {
+                repeat(numberOfCoroutines) {
+                    launch {
+                        val internalCounter = counter.getAndIncrement()
+                        log("Exekverar coroutine #$internalCounter...")
+                        simuleraHårtExterntArbete(1000)
+                        log("Coroutine #$internalCounter klar!")
+                    }
+                }
+            }
+        }
+        log("Created $numberOfCoroutines coroutines in ${time}ms.")
+    }
+
+    @Test
+    fun `parallell exekvering av hårt externt arbete`() {
+        val counter = AtomicInteger()
+        val numberOfCoroutines = 5
+        val time = measureTimeMillis {
+            runBlocking(Dispatchers.IO) {
+                repeat(numberOfCoroutines) {
+                    launch {
+                        val internalCounter = counter.getAndIncrement()
+                        log("Exekverar coroutine #$internalCounter...")
+                        simuleraHårtExterntArbete(1000)
+                        log("Coroutine #$internalCounter klar!")
+                    }
+                }
+            }
+        }
+        log("Created $numberOfCoroutines coroutines in ${time}ms.")
+    }
+
+    @Test
+    fun `structured concurrency - 1`() {
+        runBlocking {
+            launch {
+                delay(300)
+                println("best!")
+            }
+            launch {
+                delay(200)
+                println("the")
+            }
+            launch {
+                delay(100)
+                println("are")
+            }
+            println("Tacos")
+        }
+    }
+
+    @Test
+    fun `felhantering - 1`() {
+        runBlocking {
+            val job = launch {
+                println("Throwing exception from launch")
+                throw IndexOutOfBoundsException() // Will be printed to the console by Thread.defaultUncaughtExceptionHandler
+            }
+            job.join()
+            println("Joined failed job")
+            val deferred = GlobalScope.async {
+                println("Throwing exception from async")
+                throw ArithmeticException() // Nothing is printed, relying on user to call await
+            }
+            try {
+                deferred.await()
+                println("Unreached")
+            } catch (e: ArithmeticException) {
+                println("Caught ArithmeticException")
+            }
+        }
+    }
+
+    @Test
+    fun `felhantering`() {
+        runBlocking {
+            launch {
+                log("Än så länge är jag glad men vänta du bara...")
+                delay(100)
+                throw IndexOutOfBoundsException("Jag är skitoglad!")
+            }
+            launch {
+                log("Jag är glad!")
+                delay(200)
+                log("Detta kommer aldrig att exekveras.")
+            }
+            launch {
+                log("Jag är också glad!")
+            }
+        }
+    }
+
+    @Test
+    fun `returnera värde`() {
+        runBlocking {
+            val deferred = async { 5 }
+            println("deferred = ${deferred}")
+            println("deferred.await() = ${deferred.await()}")
+        }
+    }
+
+@Test
+fun `en lista av värden`() {
+    runBlocking {
+        val sum = listOf(1, 2, 3, 4, 5)
+            .map { index -> async { index } }
+            .map { it.await() }
+            .sum()
+        println("sum = $sum")
+    }
+}
+
+
+    private fun simuleraHårtInterntArbete(millis: Long) {
+        Thread.sleep(millis)
+    }
+
+    private suspend fun simuleraHårtExterntArbete(millis: Long) {
+        delay(millis)
     }
 
     /*
