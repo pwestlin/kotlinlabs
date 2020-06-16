@@ -4,7 +4,6 @@ package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import kotlin.Error
 
 
 /*
@@ -24,7 +23,18 @@ class Felix : OffspringOfPeters("Felix", 11)
 
 sealed class Car {
     object Volvo : Car()
-    object  Saab : Car()
+    object Saab : Car()
+
+    companion object {
+        fun fromString(string: String): Car {
+            return Car::class.sealedSubclasses
+                .firstOrNull {
+                    it.objectInstance!!::class.simpleName == string
+                }
+                ?.objectInstance
+                ?: throw RuntimeException("Can't find car $string")
+        }
+    }
 }
 
 class SealedClassesTest {
@@ -57,11 +67,15 @@ class SealedClassesTest {
 
     }
 
+    @Test
+    fun `iterate over sealed class`() {
+        assertThat(Car.fromString("Volvo")).isEqualTo(Car.Volvo)
+    }
 }
 
 sealed class Fruit(open val isGood: Boolean) {
-    data class Apple(override val isGood: Boolean): Fruit(isGood)
-    object Pineapple: Fruit(false)
+    data class Apple(override val isGood: Boolean) : Fruit(isGood)
+    object Pineapple : Fruit(false)
 }
 
 class SealedDataClassesTest {
@@ -84,8 +98,8 @@ class SealedDataClassesTest {
 
 sealed class ApplicationError(open val message: String?) {
 
-    object LoginError: ApplicationError(null)
-    data class PostFormError(override val message: String): ApplicationError(message)
+    object LoginError : ApplicationError(null)
+    data class PostFormError(override val message: String) : ApplicationError(message)
 }
 
 class ApplicationErrorTest {
