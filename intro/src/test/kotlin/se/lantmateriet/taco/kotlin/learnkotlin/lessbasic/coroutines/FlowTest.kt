@@ -3,6 +3,7 @@ package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.coroutines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.system.measureTimeMillis
 
+@Suppress("BlockingMethodInNonBlockingContext")
 @FlowPreview
 @ExperimentalCoroutinesApi
 internal class FlowTest {
@@ -81,8 +83,8 @@ internal class FlowTest {
 
     @Test
     fun `flow of the Simpsons on separate threads and coroutines`() = runBlocking {
-        suspend fun toUppercase(value: String): String = value.toUpperCase().also { log(it) }
-        suspend fun startsWith(value: String, start: String): Boolean = value.startsWith(start).also { log(value) }
+        fun toUppercase(value: String): String = value.toUpperCase().also { log(it) }
+        fun startsWith(value: String, start: String): Boolean = value.startsWith(start).also { log(value) }
 
         theSimpsonsFlow()
             .flowOn(Dispatchers.IO)
@@ -237,7 +239,7 @@ internal class FlowTest {
         }")
     }
 
-    suspend fun slowDouble(value: Int): Int {
+    private suspend fun slowDouble(value: Int): Int {
         delay(100)
         return value * 2
     }
@@ -274,7 +276,7 @@ internal class FlowTest {
     }
 
     @Test
-    fun `sagtas df hdahs`() = runBlocking<Unit> {
+    fun `sagtas df hdahs`() = runBlocking {
 
         val flow = (1..15).asFlow()
 
@@ -288,7 +290,41 @@ internal class FlowTest {
         }}")
     }
 
+    @Test
+    fun `asfgsdfh s`() = runBlocking {
+        val flow1 = flow {
+            for (i in 1..3) {
+                //delay(100)
+                Thread.sleep(100)
+                log("flow1: emiting $i")
+                emit(i)
+            }
+        }.flowOn(Dispatchers.IO)
+        val flow2 = flow {
+            for (i in 1..3) {
+                delay(60)
+                log("flow2: emiting $i")
+                emit(i)
+            }
+        }
+
+        val async1 = async {
+            flow1.flowOn(Dispatchers.IO).collect {
+                log("flow1: collected $it")
+            }
+        }
+        val async2 = async {
+            flow2.flowOn(Dispatchers.IO).collect {
+                log("flow2: collected $it")
+            }
+        }
+
+        async1.await()
+        async2.await()
+    }
+
+
     private fun log(message: String) {
-        println("${Instant.now()} - $message : ${Thread.currentThread().name}")
+        println("${Instant.now()} - $message : ${Thread.currentThread()}")
     }
 }
