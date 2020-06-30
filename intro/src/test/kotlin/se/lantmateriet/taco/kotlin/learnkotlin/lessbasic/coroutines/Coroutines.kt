@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
+@Suppress("RemoveRedundantBackticks")
 @ObsoleteCoroutinesApi
 class CoroutinesTest {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
@@ -282,6 +283,7 @@ class CoroutinesTest {
         }
     }
 
+    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "UNREACHABLE_CODE")
     @Test
     fun `felhantering - 1`() {
         runBlocking {
@@ -327,7 +329,7 @@ class CoroutinesTest {
     fun `returnera värde`() {
         runBlocking {
             val deferred = async { 5 }
-            println("deferred = ${deferred}")
+            println("deferred = $deferred")
             println("deferred.await() = ${deferred.await()}")
         }
     }
