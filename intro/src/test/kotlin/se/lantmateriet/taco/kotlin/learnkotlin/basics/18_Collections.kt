@@ -104,3 +104,24 @@ class CollectionsTest {
         assertThat(strings1 + strings2).containsExactly("a", "b", "c", "d")
     }
 }
+
+class UnionIntersectAndSubtractTest {
+
+    private val parents = listOf("Matt", "Peter", "Dana", "Lisa")
+    private val children = listOf("Scott", "Peter", "Diane", "Lisa")
+
+    @Test
+    fun `union test`() {
+        assertThat(parents union children).containsExactlyInAnyOrder("Matt", "Peter", "Dana", "Lisa", "Scott", "Diane")
+    }
+
+    @Test
+    fun `intersect test`() {
+        assertThat(parents intersect children).containsExactlyInAnyOrder("Peter", "Lisa")
+    }
+
+    @Test
+    fun `subtract test`() {
+        assertThat(parents subtract children).containsExactlyInAnyOrder("Matt", "Dana")
+    }
+}
