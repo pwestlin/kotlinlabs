@@ -6,9 +6,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-class ExtensionFunctionsTest {
+internal class ExtensionFunctionsTest {
 
     // Här börjar det bli fränt på riktigt!
+
+    val String.lastChar: Char
+        get() = this.toCharArray().last()
 
     @Test
     fun `extension functions`() {
@@ -34,7 +37,30 @@ class ExtensionFunctionsTest {
     fun `extension properties`() {
         assertThat("Foobar".lastChar).isEqualTo('r')
     }
-}
 
-val String.lastChar: Char
-    get() = this.toCharArray().last()
+
+    // Inspiration: https://proandroiddev.com/keep-your-interfaces-simple-e025d515e3b9
+    interface AnInterface {
+        fun isTrue(): Boolean
+    }
+
+    @Test
+    fun `try AnInterface isTrue`() {
+        class AClass: AnInterface {
+            override fun isTrue() = true
+        }
+
+        assertThat(AClass().isTrue()).isTrue()
+    }
+
+    @Test
+    fun `try AnInterface isFalse`() {
+        fun AnInterface.isFalse() = isTrue().not()
+
+        class AClass: AnInterface {
+            override fun isTrue() = true
+        }
+
+        assertThat(AClass().isFalse()).isFalse()
+    }
+}
