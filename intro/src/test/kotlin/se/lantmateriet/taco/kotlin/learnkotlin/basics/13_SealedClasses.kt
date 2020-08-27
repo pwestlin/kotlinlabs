@@ -26,6 +26,7 @@ sealed class Car {
     object Saab : Car()
 
     companion object {
+        // A way to iterate over sealed classes for Car (needs kotlin.reflect, inspiration: https://ivanmorgillo.com/2020/03/11/can-i-loop-over-a-kotlin-sealed-class)
         fun fromString(string: String): Car {
             return Car::class.sealedSubclasses
                 .firstOrNull {
