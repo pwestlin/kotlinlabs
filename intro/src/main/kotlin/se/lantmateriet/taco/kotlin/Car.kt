@@ -2,7 +2,7 @@ package se.lantmateriet.taco.kotlin
 
 import kotlin.system.measureTimeMillis
 
-fun main(args: Array<String>) {
+fun main() {
     //cars()
     karts()
     //collections()

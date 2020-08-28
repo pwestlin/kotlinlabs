@@ -20,17 +20,6 @@ class GenericsTest {
     }
 
     @Test
-    fun `unttyped stack`() {
-        val stack = Stack("foo", 4)
-        assertThat(stack.peek()).isEqualTo(4)
-        stack.push(5.67)
-        assertThat(stack.peek()).isEqualTo(5.67)
-        assertThat(stack.pop()).isEqualTo(5.67)
-        assertThat(stack.pop()).isEqualTo(4)
-        assertThat(stack.peek()).isEqualTo("foo")
-    }
-
-    @Test
     fun `typed stack`() {
         val intStack = Stack(1, 6, 3)
         assertThat(intStack.peek()).isEqualTo(3)
@@ -41,8 +30,8 @@ class GenericsTest {
     fun `generic functions`() {
         fun <E> mutableStackOf(vararg elements: E) = Stack(*elements)
 
-        val genericStack = mutableStackOf("a", 1)
-        genericStack.push(12.32)
+        val genericStack = mutableStackOf("a")
+        genericStack.push("12.32")
 
         val intStack = mutableStackOf(1, 2, 3)
         // intStack.push("foo")      // Går inte för typen har automatiskt blivit Int

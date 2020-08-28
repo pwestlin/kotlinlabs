@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 // main
 fun main(args: Array<String>) {
-    println("Hello, Wisconsin!")
+    println("Hello, Wisconsin!: ${args}")
 }
 
 // Från och med Kotlin 1.3 kan main deklareras utan parametrar

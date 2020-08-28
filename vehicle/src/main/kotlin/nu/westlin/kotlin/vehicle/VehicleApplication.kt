@@ -124,7 +124,7 @@ class CarRepository : VehicleRepository<Car> {
     }
 
     private fun createId(): Int {
-        val max = cars.map { it.id }.max()
+        val max = cars.map { it.id }.maxOrNull()
         return if (max != null) max + 1 else 1
     }
 
@@ -147,7 +147,7 @@ class BicycleRepository : VehicleRepository<Bicycle> {
     }
 
     private fun createId(): Int {
-        val max = bicycles.map { it.id }.max()
+        val max = bicycles.map { it.id }.maxOrNull()
         return if (max != null) max + 1 else 1
     }
 

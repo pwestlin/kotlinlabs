@@ -15,8 +15,7 @@ class NullsTest {
         //string = null     // Kompileringsfel för var string får inte vara null
 
         // Notera ? efter String
-        var nullableString: String? = "b"
-        nullableString = null
+        val nullableString: String? = null
 
         // !! -> Ge mig värdet i variabeln för jag VET att det inte är null (unsafe call)
         assertThatThrownBy { nullableString!!.length }

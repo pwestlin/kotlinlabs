@@ -283,7 +283,7 @@ class CoroutinesTest {
         }
     }
 
-    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "UNREACHABLE_CODE")
+    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "UNREACHABLE_CODE", "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
     @Test
     fun `felhantering - 1`() {
         runBlocking {

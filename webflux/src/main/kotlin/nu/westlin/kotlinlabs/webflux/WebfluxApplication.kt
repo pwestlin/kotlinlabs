@@ -224,7 +224,7 @@ class MovieRepository {
     }
 
     private fun createId(): Int {
-        val maxBy = movies.maxBy { it.id }
+        val maxBy = movies.maxByOrNull { it.id }
         return if (maxBy != null) maxBy.id + 1 else 1
     }
 
