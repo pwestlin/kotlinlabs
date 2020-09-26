@@ -20,12 +20,12 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation("javax.inject:javax.inject:1")
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.2"
 
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.25.1'
     testCompile group: 'org.json', name: 'json', version: '20180813'
 }

@@ -10,6 +10,6 @@ group = 'nu.westlin.kotlinlabs.javainterop'
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile("org.assertj:assertj-core:3.12.2")
+    testCompile("org.assertj:assertj-core:3.17.2")
 }
 

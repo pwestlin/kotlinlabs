@@ -25,14 +25,9 @@ bootJar {
     mainClassName = 'nu.westlin.kotlinlabs.webflux.WebfluxApplicationKt'
 }
 
-
 repositories {
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/milestone" }
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven { url 'https://jitpack.io' }
 }
-
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
@@ -42,6 +37,8 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('com.github.jkcclemens:khttp:0.1.0')
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.2"
+    compile group: 'org.json', name: 'json', version: '20200518'
+
 
     testCompile "org.jetbrains.kotlin:kotlin-test-junit5"
     testImplementation('org.springframework.boot:spring-boot-starter-test')
