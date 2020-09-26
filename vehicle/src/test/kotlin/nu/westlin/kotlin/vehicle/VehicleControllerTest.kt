@@ -9,7 +9,7 @@ import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -55,8 +55,8 @@ class VehicleControllerTest {
 
         val mvcResult = this.mvc.perform(MockMvcRequestBuilders.post("/Car")
             .content(objectMapper.writeValueAsString(car))
-            .contentType(APPLICATION_JSON_UTF8)
-            .accept(APPLICATION_JSON_UTF8))
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         assertThat(objectMapper.readValue<Car>(mvcResult.response.contentAsString)).isEqualTo(createdCar)
@@ -73,8 +73,8 @@ class VehicleControllerTest {
 
         val mvcResult = this.mvc.perform(MockMvcRequestBuilders.post("/Vehicle")
             .content(objectMapper.writeValueAsString(bicycle))
-            .contentType(APPLICATION_JSON_UTF8)
-            .accept(APPLICATION_JSON_UTF8))
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         assertThat(objectMapper.readValue<Bicycle>(mvcResult.response.contentAsString)).isEqualTo(createdBicycle)

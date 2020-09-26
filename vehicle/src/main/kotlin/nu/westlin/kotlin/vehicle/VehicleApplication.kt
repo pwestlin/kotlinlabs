@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -70,13 +70,13 @@ class VehicleController(
         return carRepository.all().union(bicycleRepository.all()).toList()
     }
 
-    @PostMapping(path = ["Car"], consumes = [APPLICATION_JSON_UTF8_VALUE])
+    @PostMapping(path = ["Car"], consumes = [APPLICATION_JSON_VALUE])
     fun addCar(@RequestBody car: Car): Car {
         println("body = $car")
         return carRepository.add(car)
     }
 
-    @PostMapping(path = ["Vehicle"], consumes = [APPLICATION_JSON_UTF8_VALUE])
+    @PostMapping(path = ["Vehicle"], consumes = [APPLICATION_JSON_VALUE])
     fun addVehicle(@RequestBody vehicle: Vehicle<*>): Vehicle<*> {
         return when (vehicle) {
             is Car -> carRepository.add(vehicle)

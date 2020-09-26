@@ -1,18 +1,11 @@
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.utbytesobjekt
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
+import org.junit.Assert.assertThrows
 import org.junit.Test
-import org.junit.rules.ExpectedException
 import java.time.ZonedDateTime
 
 class GemensamhetsanlaggningTest {
-
-    @Suppress("RedundantVisibilityModifier")
-    @Rule
-    @JvmField
-    public var thrown = ExpectedException.none()!!
-
 
     @Test
     fun `create Gemensamhetsanlaggning with constructor`() {
@@ -72,10 +65,7 @@ class GemensamhetsanlaggningTest {
 
     @Test
     fun `create Gemensamhetsanlaggning with builder - reuired field is missing`() {
-        thrown.expect(IllegalStateException::class.java)
-        thrown.expectMessage("objektidentitet krävs")
-
-        GemensamhetsanlaggningBuilder().build()
+        assertThrows("objektidentitet krävs", IllegalStateException::class.java) { GemensamhetsanlaggningBuilder().build() }
     }
 
     @Test

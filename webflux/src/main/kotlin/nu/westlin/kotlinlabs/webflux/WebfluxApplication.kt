@@ -46,7 +46,7 @@ class WebfluxApplication {
         ).andRoute(
             GET("/movies"),
             HandlerFunction {
-                ServerResponse.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(movieRepository.all())
+                ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(movieRepository.all())
             }
         ).andRoute(
             GET("/movieTip"),
@@ -122,7 +122,7 @@ class MovieController(private val movieRepository: MovieRepository, private val 
     @GetMapping("movie/{id}")
     fun get(@PathVariable id: Int) = movieRepository.get(id)
 
-    @GetMapping(path = ["movies"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping(path = ["movies"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll() = movieRepository.all()
 
     @GetMapping(path = ["/movieTip"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])

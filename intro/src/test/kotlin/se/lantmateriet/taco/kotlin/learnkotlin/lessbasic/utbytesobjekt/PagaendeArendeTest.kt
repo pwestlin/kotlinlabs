@@ -1,18 +1,11 @@
 package se.lantmateriet.taco.kotlin.learnkotlin.lessbasic.utbytesobjekt
 
 import org.assertj.core.api.Assertions
-import org.junit.Rule
+import org.junit.Assert.assertThrows
 import org.junit.Test
-import org.junit.rules.ExpectedException
 import java.time.ZonedDateTime
 
 class PagaendeArendeTest {
-
-    @Suppress("RedundantVisibilityModifier")
-    @Rule
-    @JvmField
-    public var thrown = ExpectedException.none()!!
-
 
     @Test
     fun `create PagaendeArende with constructor`() {
@@ -72,10 +65,7 @@ class PagaendeArendeTest {
 
     @Test
     fun `create PagaendeArende with builder - reuired field is missing`() {
-        thrown.expect(IllegalStateException::class.java)
-        thrown.expectMessage("objektidentitet krävs")
-
-        PagaendeArendeBuilder().build()
+        assertThrows("objektidentitet krävs", IllegalStateException::class.java) { PagaendeArendeBuilder().build() }
     }
 
     @Test

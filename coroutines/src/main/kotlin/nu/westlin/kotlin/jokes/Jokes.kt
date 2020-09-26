@@ -24,10 +24,10 @@ import kotlin.system.measureTimeMillis
 @RequestMapping("/")
 class JokesController(private val service: JokesService) {
 
-    @GetMapping(value = ["joke"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping(value = ["joke"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun joke() = service.randomJoke()
 
-    @GetMapping(value = ["jokes"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping(value = ["jokes"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun jokes() = service.randomJokes(10)
 }
 
