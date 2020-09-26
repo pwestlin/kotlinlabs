@@ -2,11 +2,17 @@
 
 package se.lantmateriet.taco.kotlin.learnkotlin.basics
 
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import se.lantmateriet.taco.kotlin.learnkotlin.basics.PantDSLTest.Hindertyp.ALLVARLIGT_FEL
+import se.lantmateriet.taco.kotlin.learnkotlin.basics.PantDSLTest.Hindertyp.KFM_SPARR
+import se.lantmateriet.taco.kotlin.learnkotlin.basics.PantDSLTest.TransactionManager.Work
+import java.io.Closeable
+import java.io.StringReader
 import java.time.Instant
 
 class LambdasTest {
@@ -300,5 +306,494 @@ internal class FunctionReferenceAndCompositionTest {
         val oddLength = compose(::isOdd, ::length)
         val strings = listOf("a", "ab", "abc")
         println(strings.filter(oddLength))
+    }
+}
+
+@Suppress("ConvertTryFinallyToUseCall")
+internal class FooTest {
+
+    @Test
+    fun `foo bar`() {
+        data class Person(val nane: String)
+
+        val person = Person("Peter")
+
+        fun Person.doStuff(block: (name: String) -> Unit) {
+            println("nane = $nane")
+            block("Lisa")
+        }
+
+        person.doStuff { println("Hello $it!") }
+
+        fun Person.doStuff2(block: Person.() -> Unit) {
+            println("nane = $nane")
+            block()
+        }
+
+        person.doStuff2 { println("Hello $nane!") }
+    }
+
+    @Test
+    fun `sfdgsd hsd`() {
+        fun encloseInXMLAttribute(sb: StringBuilder, attr: String, action: (StringBuilder) -> StringBuilder): String {
+            sb.append("<$attr>")
+            action(sb)
+            sb.append("</$attr>")
+            return sb.toString()
+        }
+
+        val xml = encloseInXMLAttribute(StringBuilder(), "attr") {
+            it.append("MyAttribute")
+        }
+        println(xml)
+
+        fun encloseInXMLAttribute2(sb: StringBuilder, attr: String, action: StringBuilder.() -> StringBuilder): String {
+            sb.append("<$attr>")
+            sb.action()
+            sb.append("</$attr>")
+            return sb.toString()
+        }
+
+        val xml2 = encloseInXMLAttribute2(StringBuilder(), "attr") {
+            append("MyAttribute")
+        }
+        println(xml2)
+    }
+
+    @Test
+    fun `my own use function`() {
+        fun <T : Closeable, R> T.closeIt(block: (T) -> R): R {
+            try {
+                return block(this)
+            } finally {
+                close()
+            }
+        }
+
+        StringReader("fisksoppa").closeIt {
+            assertThat(it.readText()).isEqualTo("fisksoppa")
+        }
+        assertThat(StringReader("fisksoppa").closeIt {
+            it.readText()
+        }).isEqualTo("fisksoppa")
+
+
+        fun <T : Closeable, R> T.closeIt2(block: T.() -> R): R {
+            try {
+                return block()
+            } finally {
+                close()
+            }
+        }
+
+        StringReader("fisksoppa").closeIt2 {
+            assertThat(readText()).isEqualTo("fisksoppa")
+        }
+        assertThat(StringReader("fisksoppa").closeIt2 {
+            readText()
+        }).isEqualTo("fisksoppa")
+    }
+}
+
+internal class PantDSLTest {
+
+    enum class Hindertyp {
+        ALLVARLIGT_FEL, KFM_SPARR
+    }
+
+    // TODO petves: typ -> enum
+    data class Hinder(val id: String, val typ: Hindertyp)
+    data class Pant(val id: String, val version: Int, val Hinder: List<Hinder>)
+
+    /*
+    Vi vill åstadkomma följande:
+    val pant: Pant =
+        pant {
+            id: "p1"
+            version: 1
+
+            hinder {
+                id: "h1"
+                typ: "allvarligt fel"
+            }
+            hinder {
+                id: "h2"
+                typ: "KFM spärr"
+            }
+        }
+     */
+
+    class PantBuilder(var id: String? = null, var version: Int? = null, var hinder: ArrayList<Hinder> = ArrayList()) {
+        fun build(): Pant = Pant(id!!, version!!, hinder)
+    }
+
+    class HinderBuilder(var id: String? = null, var typ: Hindertyp? = null) {
+        fun build(): Hinder = Hinder(id!!, typ!!)
+    }
+
+    fun pant(block: PantBuilder.() -> Unit): Pant {
+        val builder = PantBuilder()
+        block(builder)
+        return builder.build()
+    }
+
+    @Test
+    fun `skapa pant utan hinder`() {
+        assertThat(
+            pant {
+                id = "p1"
+                version = 1
+            }
+        ).isEqualTo(Pant("p1", 1, emptyList()))
+    }
+
+    fun PantBuilder.hinder(block: HinderBuilder.() -> Unit) {
+        val builder = HinderBuilder()
+        block(builder)
+        hinder.add(builder.build())
+    }
+
+    @Test
+    fun `skapa pant med ett hinder`() {
+        assertThat(
+            pant {
+                id = "p1"
+                version = 1
+
+                hinder {
+                    id = "h1"
+                    typ = ALLVARLIGT_FEL
+                }
+            }
+        ).isEqualTo(Pant("p1", 1, listOf(Hinder("h1", ALLVARLIGT_FEL))))
+    }
+
+    @Test
+    fun `skapa pant med två hinder`() {
+        assertThat(
+            pant {
+                id = "p1"
+                version = 1
+
+                hinder {
+                    id = "h1"
+                    typ = ALLVARLIGT_FEL
+                }
+                hinder {
+                    id = "h2"
+                    typ = KFM_SPARR
+                }
+            }
+        ).isEqualTo(Pant("p1", 1, listOf(Hinder("h1", ALLVARLIGT_FEL), Hinder("h2", KFM_SPARR))))
+    }
+
+    @Test
+    fun `alphabet test`() {
+        fun firstCharsOfAlphabet(count: Int): String {
+            val stringBuilder = StringBuilder()
+            stringBuilder.appendLine("First $count chars of the alphabet:")
+            ('a'..'z').take(count).forEach { stringBuilder.append(it) }
+            return stringBuilder.toString()
+        }
+        assertThat(firstCharsOfAlphabet(3)).isEqualTo("First 3 chars of the alphabet:\nabc")
+
+        // Hmm, det var ett jäkla upprepande av sb ovan!
+
+        fun firstCharsOfAlphabet2(count: Int): String {
+            return with(StringBuilder()) {
+                appendLine("First $count chars of the alphabet:")
+                ('a'..'z').take(count).forEach { append(it) }
+                toString()
+            }
+        }
+        assertThat(firstCharsOfAlphabet2(3)).isEqualTo("First 3 chars of the alphabet:\nabc")
+
+        fun firstCharsOfAlphabet3(count: Int): String {
+            return StringBuilder().apply {
+                appendLine("First $count chars of the alphabet:")
+                ('a'..'z').take(count).forEach { append(it) }
+            }.toString()
+        }
+        assertThat(firstCharsOfAlphabet3(3)).isEqualTo("First 3 chars of the alphabet:\nabc")
+
+        // Hmm, bättre, men
+    }
+
+    @Test
+    fun `do something with an Int`() {
+        fun doSomethingWithAntInt(value: Int, action: (Int) -> Int): Int {
+            return action(value)
+        }
+
+        assertThat(doSomethingWithAntInt(2) { it * 2 }).isEqualTo(4)
+        assertThat(doSomethingWithAntInt(2) { it / 2 }).isEqualTo(1)
+        assertThat(doSomethingWithAntInt(2) { it + 3 }).isEqualTo(5)
+    }
+
+    @Test
+    fun `do something else with an Int`() {
+        fun doSomethingWithAntInt(value: Int, action: Int.() -> Int): Int {
+            return value.action()
+        }
+
+        assertThat(doSomethingWithAntInt(2) { this * 2 }).isEqualTo(4)
+        assertThat(doSomethingWithAntInt(2) { this / 2 }).isEqualTo(1)
+        assertThat(doSomethingWithAntInt(2) { this + 3 }).isEqualTo(5)
+
+        assertThat(doSomethingWithAntInt(2) { this.compareTo(5) }).isLessThan(0)
+        assertThat(doSomethingWithAntInt(2) { compareTo(5) }).isLessThan(0)
+    }
+
+    class TransactionManager {
+        private val workList = ArrayList<Work>()
+
+        data class Work(val descr: String)
+
+        fun startTransaction() {
+            println("Starting transaction")
+        }
+
+        fun addWork(work: Work) {
+            workList.add(work)
+        }
+
+        fun commit() {
+            printWorkList()
+            println("Committed transaction")
+        }
+
+        private fun printWorkList() {
+            println("Work list in transaction:")
+            workList.forEach { println("\t$it") }
+        }
+
+        fun rollback() {
+            printWorkList()
+            println("Rollbacked transaction")
+        }
+    }
+
+    @Test
+    fun `do something in a transaction`() {
+        val transactionManager = TransactionManager()
+
+        transactionManager.startTransaction()
+        try {
+            transactionManager.addWork(Work("Hard work"))
+            transactionManager.addWork(Work("Very hard work"))
+            transactionManager.commit()
+        } catch (e: Exception) {
+            transactionManager.rollback()
+        }
+    }
+
+    fun doSomethingInATransaction(block: (TransactionManager) -> Unit) {
+        val transactionManager = TransactionManager()
+
+        transactionManager.startTransaction()
+        try {
+            block(transactionManager)
+            transactionManager.commit()
+        } catch (e: Exception) {
+            transactionManager.rollback()
+        }
+    }
+
+    @Test
+    fun `do something in a transaction2`() {
+        doSomethingInATransaction {
+            it.addWork(Work("Hard work"))
+            it.addWork(Work("Very hard work"))
+        }
+    }
+
+    fun doSomethingInATransaction2(block: TransactionManager.() -> Unit) {
+        val transactionManager = TransactionManager()
+
+        transactionManager.startTransaction()
+        try {
+            transactionManager.block()
+            transactionManager.commit()
+        } catch (e: Exception) {
+            transactionManager.rollback()
+        }
+    }
+
+    @Test
+    fun `do something in a transaction with exception`() {
+        doSomethingInATransaction2 {
+            addWork(Work("Hard work"))
+            addWork(Work("Very hard work"))
+            throw RuntimeException("Something went really worng!")
+        }
+    }
+
+    @Test
+    fun `konkatenera listor`() {
+        assertThat(listOf(1, 2, 3) + listOf(4, 5)).containsExactly(1, 2, 3, 4, 5)
+        assertThat(listOf(1, 2, 3).plus(listOf(4, 5))).containsExactly(1, 2, 3, 4, 5)
+    }
+
+
+}
+
+inline class InlinedClass(val bar: String)
+
+class InlineFoo {
+    fun takesInlinedClassAsAParam(inlinedClass: InlinedClass) = inlinedClass.bar
+
+    fun returnslinedClassAsAParam() = InlinedClass("fossing")
+}
+
+class User(val username: String, val password: String)
+
+/*
+inline class Username(val username: String) {
+    init {
+        if(username.length < 10 && username.length > 20) throw RuntimeException("Username must be between 10 and 20 chars long")
+    }
+}
+inline class Password(val password: String)
+class StronglyTypedUser(val username: Username, val password: Password)
+*/
+
+
+typealias Username = String
+typealias Password = String
+
+class UserWithTypeAliases(val username: Username, val password: Password)
+
+internal class InlineClassTest {
+    val inlineFoo = mockk<InlineFoo>()
+
+    @Test
+    fun `as a param`() {
+        every { inlineFoo.takesInlinedClassAsAParam(anyValue()) } returns "fisk"
+
+        assertThat(inlineFoo.takesInlinedClassAsAParam(InlinedClass("bla"))).isEqualTo("fisk")
+    }
+
+    @Test
+    fun `as result`() {
+        val inlinedClass = InlinedClass("snorre")
+        every { inlineFoo.returnslinedClassAsAParam() } returns value(inlinedClass)
+
+        assertThat(inlineFoo.returnslinedClassAsAParam()).isEqualTo(inlinedClass)
+    }
+
+    @Test
+    fun `inline class`() {
+        val user = User("sven", "abc123")
+    }
+
+}
+
+sealed class ResultOf<out R> {
+    data class Success<out R>(val value: R) : ResultOf<R>()
+    data class Failure(
+        val message: String?,
+        val throwable: Throwable?
+    ) : ResultOf<Nothing>() {
+        init {
+            require(message == null && throwable == null) { "At least one of message and throwable has to be non-null" }
+        }
+    }
+}
+
+sealed class ResultOf2<out R> {
+    data class Success<out R>(val value: R) : ResultOf2<R>()
+    data class NumberFailure(val message: String?) : ResultOf2<Nothing>()
+    data class MegaFailure(val message: String?) : ResultOf2<Nothing>()
+    object UnknownErrorFailure : ResultOf2<String>()
+}
+
+val <T> T.exhaustive: T
+    get() = this
+
+internal class SealedClassTest {
+
+    @Test
+    fun `asdfasd ga sdgas`() {
+        fun canBeAFailure(boolean: Boolean): ResultOf<String> {
+            return if (boolean) ResultOf.Success("Jaaa!") else ResultOf.Failure("Hä gick på skit", RuntimeException("Blä"))
+        }
+
+        assertThat(canBeAFailure(true)).isEqualTo(ResultOf.Success("Jaaa!"))
+        assertThat(canBeAFailure(false)).isEqualToIgnoringGivenFields(ResultOf.Failure("Hä gick på skit", RuntimeException("Blä")), "throwable")
+    }
+
+    @Test
+    fun `dgsdf ywet7w46`() {
+        fun canBeAFailure(value: Int): ResultOf2<String> {
+            return when (value) {
+                1 -> ResultOf2.Success("1")
+                2 -> ResultOf2.NumberFailure("2")
+                else -> ResultOf2.MegaFailure("Shit!")
+            }
+        }
+
+        assertThat(canBeAFailure(1)).isEqualTo(ResultOf2.Success("1"))
+        assertThat(canBeAFailure(2)).isEqualTo(ResultOf2.NumberFailure("2"))
+        assertThat(canBeAFailure(2626)).isEqualTo(ResultOf2.MegaFailure("Shit!"))
+
+        println(when (canBeAFailure(1)) {
+            is ResultOf2.Success -> "Det gick bra!"
+            is ResultOf2.NumberFailure -> "Vi fick nummerfel..."
+            is ResultOf2.MegaFailure -> "Vi fick megafel... :/"
+            is ResultOf2.UnknownErrorFailure -> "Vi har ingen aning vad som gick snett..."
+        }.exhaustive)
+    }
+}
+
+internal class ApplyTest {
+
+    data class Person(val name: String, val age: Int, val children: List<Person> = emptyList())
+
+    class PersonBuilder {
+        var name: String? = null
+        var age: Int? = null
+        var children: ArrayList<Person> = ArrayList()
+
+        fun addChild(child: Person) {
+            children.add(child)
+        }
+
+        // TODO: Felhantering
+        fun build(): Person = Person(name!!, age!!, children)
+    }
+
+    @Test
+    fun `create person`() {
+        val builder = PersonBuilder()
+        builder.name = "Sven Stare"
+        builder.age = 56
+        builder.addChild(Person("Nina Stare", 26))
+        builder.addChild(Person("Mikael Stare", 24))
+
+        val person = builder.build()
+    }
+
+    @Test
+    fun `create person with apply`() {
+        val person = PersonBuilder().apply {
+            name = "Sven Stare"
+            age = 56
+            addChild(Person("Nina Stare", 26))
+            addChild(Person("Mikael Stare", 24))
+        }.build()
+    }
+
+    @Test
+    fun `test foo`() {
+        class Person(var firstName: String, var lastName: String) {
+            val fullName
+                get() = "$firstName $lastName"
+        }
+
+        val person = Person("Dummer", "Jöns")
+        assertThat(person.fullName).isEqualTo("Dummer Jöns")
+
+        person.firstName = "Sune"
+        assertThat(person.fullName).isEqualTo("Sune Jöns")
     }
 }
