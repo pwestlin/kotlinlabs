@@ -149,14 +149,15 @@ internal class FlowTest {
                 log("Emitted $it")
             }
 
-        println("Exec time = ${measureTimeMillis {
-            emitter
-                .collect {
-                    log("Start collecting $it")
-                    delay(3000)
-                    log("End collecting $it")
-                }
-        }
+        println("Exec time = ${
+            measureTimeMillis {
+                emitter
+                    .collect {
+                        log("Start collecting $it")
+                        delay(3000)
+                        log("End collecting $it")
+                    }
+            }
         }")
     }
 
@@ -170,15 +171,16 @@ internal class FlowTest {
                 log("Emitted $it")
             }
 
-        println("Exec time = ${measureTimeMillis {
-            emitter
-                .flowOn(Dispatchers.Default)
-                .collect {
-                    log("Start collecting $it")
-                    delay(3000)
-                    log("End collecting $it")
-                }
-        }
+        println("Exec time = ${
+            measureTimeMillis {
+                emitter
+                    .flowOn(Dispatchers.Default)
+                    .collect {
+                        log("Start collecting $it")
+                        delay(3000)
+                        log("End collecting $it")
+                    }
+            }
         }")
     }
 
@@ -192,15 +194,16 @@ internal class FlowTest {
                 log("Emitted $it")
             }
 
-        println("Exec time = ${measureTimeMillis {
-            emitter
-                .buffer()
-                .collect {
-                    log("Start collecting $it")
-                    delay(300)
-                    log("End collecting $it")
-                }
-        }
+        println("Exec time = ${
+            measureTimeMillis {
+                emitter
+                    .buffer()
+                    .collect {
+                        log("Start collecting $it")
+                        delay(300)
+                        log("End collecting $it")
+                    }
+            }
         }")
     }
 
@@ -224,18 +227,19 @@ internal class FlowTest {
                 log("Emitted $it")
             }
 
-        println("Exec time = ${measureTimeMillis {
-            emitter
-                .concurrentMap(Dispatchers.IO, 100) {
-                    log("Start mapping $it")
-                    delay(5000)
-                    log("End mapping $it")
-                    it
-                }
-                .collect {
-                    log("Collected $it")
-                }
-        }
+        println("Exec time = ${
+            measureTimeMillis {
+                emitter
+                    .concurrentMap(Dispatchers.IO, 100) {
+                        log("Start mapping $it")
+                        delay(5000)
+                        log("End mapping $it")
+                        it
+                    }
+                    .collect {
+                        log("Collected $it")
+                    }
+            }
         }")
     }
 
@@ -264,15 +268,17 @@ internal class FlowTest {
             }
         }
 
-        println("Total exec time: ${measureTimeMillis {
-            flow
-                .buffer(100)
-                .collect {
-                    log("Doubling $it")
-                    log("Double of $it is ${slowDouble(it)}")
-                }
+        println("Total exec time: ${
+            measureTimeMillis {
+                flow
+                    .buffer(100)
+                    .collect {
+                        log("Doubling $it")
+                        log("Double of $it is ${slowDouble(it)}")
+                    }
 
-        }}")
+            }
+        }")
     }
 
     @Test
@@ -280,14 +286,16 @@ internal class FlowTest {
 
         val flow = (1..15).asFlow()
 
-        println("Total exec time: ${measureTimeMillis {
-            flow
-                .concurrentMap {
-                    log("Doubling $it")
-                    log("Double of $it is ${slowDouble(it)}")
-                }.collect()
+        println("Total exec time: ${
+            measureTimeMillis {
+                flow
+                    .concurrentMap {
+                        log("Doubling $it")
+                        log("Double of $it is ${slowDouble(it)}")
+                    }.collect()
 
-        }}")
+            }
+        }")
     }
 
     @Test
@@ -326,5 +334,36 @@ internal class FlowTest {
 
     private fun log(message: String) {
         println("${Instant.now()} - $message : ${Thread.currentThread().name}")
+    }
+}
+
+@ExperimentalCoroutinesApi
+internal class AntoherFlowTest {
+
+    private fun currTime() = System.currentTimeMillis()
+    var start: Long = 0
+
+    private fun emitter(): Flow<Int> =
+        (1..5)
+            .asFlow()
+            .onStart { start = currTime() }
+            .onEach {
+                delay(100)
+                print("Emit $it (${currTime() - start}ms) ")
+            }
+
+    @Test
+    fun `collect stuff`() = runBlocking {
+        val time = measureTimeMillis {
+            emitter()
+                //.flowOn(Dispatchers.Default)
+                .buffer()
+                .collect {
+                    print("\nCollect $it starts (${currTime() - start}ms) ")
+                    delay(300)
+                    println("Collect $it ends (${currTime() - start}ms) ")
+                }
+        }
+        print("\nCollected in $time ms")
     }
 }
