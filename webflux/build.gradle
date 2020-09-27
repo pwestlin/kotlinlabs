@@ -19,7 +19,7 @@ apply plugin: 'io.spring.dependency-management'
 group = 'nu.westlin.kotlinlabs.webflux'
 
 bootJar {
-    mainClassName = 'se.lantmateriet.taco.kotlin.application.IntroApplication'
+    mainClassName = 'nu.westlin.kotlin.application.IntroApplication'
 }
 
 dependencies {
