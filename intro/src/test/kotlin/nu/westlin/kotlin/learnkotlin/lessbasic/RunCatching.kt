@@ -48,7 +48,7 @@ internal class RunCatching {
     @Test
     fun `doSomething nice with runCatching`() {
         val result = runCatching { service.doSomething("nice stuff") }
-        assertThat(result.isSuccess).isTrue()
+        assertThat(result.isSuccess).isTrue
         assertThat(result.getOrNull()).isEqualTo("nice stuff")
         assertThat(result.exceptionOrNull()).isNull()
     }
@@ -56,7 +56,7 @@ internal class RunCatching {
     @Test
     fun `doSomething not so nice with runCatching`() {
         val result = runCatching { service.doSomething(null) }
-        assertThat(result.isFailure).isTrue()
+        assertThat(result.isFailure).isTrue
         assertThat(result.exceptionOrNull()).isInstanceOf(RuntimeException::class.java)
         assertThat(result.exceptionOrNull()).hasMessage("something can't be null!")
         assertThat(result.getOrNull()).isNull()
