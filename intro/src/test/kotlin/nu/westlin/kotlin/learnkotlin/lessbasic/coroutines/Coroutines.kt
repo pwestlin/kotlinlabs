@@ -4,15 +4,18 @@ package nu.westlin.kotlin.learnkotlin.lessbasic.coroutines
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
@@ -22,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
+@ExperimentalCoroutinesApi
 @Suppress("RemoveRedundantBackticks")
 @ObsoleteCoroutinesApi
 class CoroutinesTest {
@@ -334,16 +338,16 @@ class CoroutinesTest {
         }
     }
 
-@Test
-fun `en lista av värden`() {
-    runBlocking {
-        val sum = listOf(1, 2, 3, 4, 5)
-            .map { index -> async { index } }
-            .map { it.await() }
-            .sum()
-        println("sum = $sum")
+    @Test
+    fun `en lista av värden`() {
+        runBlocking {
+            val sum = listOf(1, 2, 3, 4, 5)
+                .map { index -> async { index } }
+                .map { it.await() }
+                .sum()
+            println("sum = $sum")
+        }
     }
-}
 
 
     private fun simuleraHårtInterntArbete(millis: Long) {
@@ -554,6 +558,41 @@ fun `en lista av värden`() {
 
     suspend fun slowAsATurtle(time: Long) {
         delay(time)
+    }
+
+    @Test
+    fun `test delay in launch with virtual time by runBlockingTest`() = runBlockingTest {
+        suspend fun bar() = coroutineScope {
+            launch {
+                delay(1000)     // auto-advances without delay
+                println("bar")  // executes eagerly when bar() is called
+            }
+        }
+
+        val realStartTime = System.currentTimeMillis()
+        val virtualStartTime = currentTime
+
+        bar()
+
+        println("${System.currentTimeMillis() - realStartTime} ms")  // ~ 11 ms
+        println("${currentTime - virtualStartTime} ms")              // 1000 ms
+    }
+
+    @Test
+    fun `test channels`() = runBlockingTest {
+        val channel = Channel<String>()
+        launch {
+            channel.send("First")
+            channel.send("Second")
+        }
+        launch {
+            channel.send("Third")
+        }
+        launch {
+            repeat(3) {
+                log("Received: ${channel.receive()}")
+            }
+        }
     }
 }
 
