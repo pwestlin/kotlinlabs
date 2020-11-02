@@ -8,9 +8,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -578,52 +575,6 @@ class CoroutinesTest {
 
         println("${System.currentTimeMillis() - realStartTime} ms")  // ~ 11 ms
         println("${currentTime - virtualStartTime} ms")              // 1000 ms
-    }
-
-    @Test
-    fun `test channels`() = runBlockingTest {
-        val channel = Channel<String>()
-        launch {
-            channel.send("First")
-            channel.send("Second")
-        }
-        launch {
-            channel.send("Third")
-        }
-        launch {
-            repeat(3) {
-                log("Received: ${channel.receive()}")
-            }
-        }
-    }
-
-    @Test
-    fun `test more channels`() = runBlockingTest {
-        class Sender(private val channel: SendChannel<String>) {
-            suspend fun send(msg: String) {
-                channel.send(msg)
-            }
-        }
-        class Receiver(private val channel: ReceiveChannel<String>) {
-            suspend fun receive(): String = channel.receive()
-        }
-
-        val channel = Channel<String>()
-        val sender = Sender(channel)
-        val receiver = Receiver(channel)
-
-        launch {
-            sender.send("First")
-            sender.send("Second")
-        }
-        launch {
-            sender.send("Third")
-        }
-        launch {
-            repeat(3) {
-                log("Received: ${receiver.receive()}")
-            }
-        }
     }
 }
 

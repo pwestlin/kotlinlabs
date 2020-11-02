@@ -2,10 +2,14 @@ package nu.westlin.kotlin.learnkotlin.lessbasic.coroutines
 
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 
 /**
@@ -49,6 +53,53 @@ internal class ChannelTest {
         }
     }
 
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `test channels`() = runBlockingTest {
+        val channel = Channel<String>()
+        launch {
+            channel.send("First")
+            channel.send("Second")
+        }
+        launch {
+            channel.send("Third")
+        }
+        launch {
+            repeat(3) {
+                log("Received: ${channel.receive()}")
+            }
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `test more channels`() = runBlockingTest {
+        class Sender(private val channel: SendChannel<String>) {
+            suspend fun send(msg: String) {
+                channel.send(msg)
+            }
+        }
+        class Receiver(private val channel: ReceiveChannel<String>) {
+            suspend fun receive(): String = channel.receive()
+        }
+
+        val channel = Channel<String>()
+        val sender = Sender(channel)
+        val receiver = Receiver(channel)
+
+        launch {
+            sender.send("First")
+            sender.send("Second")
+        }
+        launch {
+            sender.send("Third")
+        }
+        launch {
+            repeat(3) {
+                log("Received: ${receiver.receive()}")
+            }
+        }
+    }
 }
 
 /**
