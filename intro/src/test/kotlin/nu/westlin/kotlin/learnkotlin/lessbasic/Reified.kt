@@ -8,22 +8,22 @@ import kotlin.reflect.KClass
 
 class ReifiedTest {
 
-    fun membersOfNotReified(clazz: KClass<*>) = clazz.constructors
-    inline fun <reified T> membersOf() = T::class.constructors
+    fun constructorsOfNotReified(clazz: KClass<*>) = clazz.constructors
+    inline fun <reified T> constructorsOf() = T::class.constructors
 
     @Test
     fun `non reified`() {
-        println(membersOfNotReified(StringBuilder::class).joinToString("\n"))
+        println(constructorsOfNotReified(StringBuilder::class).joinToString("\n"))
     }
 
     @Test
     fun `reified`() {
-        println(membersOf<StringBuilder>().joinToString("\n"))
+        println(constructorsOf<StringBuilder>().joinToString("\n"))
     }
 
     @Test
     fun `should have smae constructors`() {
-        assertThat(membersOf<StringBuilder>().joinToString(","))
-            .isEqualTo(membersOfNotReified(StringBuilder::class).joinToString(","))
+        assertThat(constructorsOf<StringBuilder>().joinToString(","))
+            .isEqualTo(constructorsOfNotReified(StringBuilder::class).joinToString(","))
     }
 }
