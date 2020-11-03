@@ -123,5 +123,6 @@ class UnionIntersectAndSubtractTest {
     @Test
     fun `subtract test`() {
         assertThat(parents subtract children).containsExactlyInAnyOrder("Matt", "Dana")
+        assertThat(parents - children).containsExactlyInAnyOrder("Matt", "Dana")
     }
 }
