@@ -21,9 +21,8 @@ class StatePattern {
         override fun calculate(first: Int, second: Int): Int = first - second
     }
 
-    // TODO petves: Delegation?
-    class CalculatorContext(var state: CalculatorState) {
-        fun calculate(first: Int, second: Int): Int = state.calculate(first, second)
+    class CalculatorContext(var state: CalculatorState): CalculatorState {
+        override fun calculate(first: Int, second: Int): Int = state.calculate(first, second)
     }
 
     @Test
