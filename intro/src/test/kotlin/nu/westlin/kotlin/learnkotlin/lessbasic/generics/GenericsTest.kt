@@ -247,3 +247,48 @@ class GenericsInAndOutTest {
     Contravariant type can be used on in positions.
      */
 }
+
+class MoreGenericsTest {
+    open class Shape
+    class Square: Shape()
+    class Triangle: Shape()
+
+    @Test
+    fun `invariant type`() {
+        class Item<T>
+
+        val list = mutableListOf<Item<Square>>()
+        list.add(Item<Square>())
+        // list.add(Item<Shape>())      // Compile error
+        // list.add(Item<Triangle>())   // Compile error
+
+        val item: Item<Square> = list.first()
+        // val item: Item<Shape> = list.first()     // Compile error
+    }
+
+    @Test
+    fun `contravariant type`() {
+        class Item<out T>
+
+        val list = mutableListOf<Item<Shape>>()
+        list.add(Item<Square>())
+        list.add(Item<Shape>())
+        list.add(Item<Triangle>())
+
+        //val item: Item<Square> = list.first()   // Compile error
+        val item: Item<Shape> = list.first()
+    }
+
+    @Test
+    fun `covariant type`() {
+        class Item<in T>
+
+        val list = mutableListOf<Item<Shape>>()
+        // list.add(Item<Square>())    // Compile error
+        list.add(Item<Shape>())
+        // list.add(Item<Triangle>())  // Compile error
+
+        val itemSquare: Item<Square> = list.first()
+        val itemShape: Item<Shape> = list.first()
+    }
+}
