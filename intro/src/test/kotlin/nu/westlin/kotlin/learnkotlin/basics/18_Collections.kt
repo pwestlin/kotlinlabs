@@ -14,7 +14,7 @@ class CollectionsTest {
 
         // get
         assertThat(cars[1]).isEqualTo("Saab")
-        assertThat(cars[1] == cars.get(1)).isTrue()     // get (och set) funkar också men ska inte användas
+        assertThat(cars[1] == cars.get(1)).isTrue     // get (och set) funkar också men ska inte användas
 
         // set
         cars[1] = "Snabel"
