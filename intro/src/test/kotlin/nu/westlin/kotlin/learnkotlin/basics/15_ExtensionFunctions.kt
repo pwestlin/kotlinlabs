@@ -50,7 +50,7 @@ internal class ExtensionFunctionsTest {
             override fun isTrue() = true
         }
 
-        assertThat(AClass().isTrue()).isTrue()
+        assertThat(AClass().isTrue()).isTrue
     }
 
     @Test
@@ -61,6 +61,6 @@ internal class ExtensionFunctionsTest {
             override fun isTrue() = true
         }
 
-        assertThat(AClass().isFalse()).isFalse()
+        assertThat(AClass().isFalse()).isFalse
     }
 }

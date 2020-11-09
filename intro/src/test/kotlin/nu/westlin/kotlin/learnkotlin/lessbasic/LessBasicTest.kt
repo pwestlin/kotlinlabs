@@ -118,7 +118,7 @@ class LessBasicTest {
         assertThat(Foo("foo").let {
             true
             false
-        }).isFalse()
+        }).isFalse
 
         val let = Foo("Bar").let { foo ->
             foo.toString()
@@ -129,7 +129,7 @@ class LessBasicTest {
 
             foo == Foo("Bra")
         }
-        assertThat(let).isFalse()
+        assertThat(let).isFalse
 
     }
 

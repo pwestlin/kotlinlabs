@@ -51,8 +51,8 @@ class SealedClassesTest {
             }
         }
 
-        assertThat(isTonaring(Felix())).isFalse()
-        assertThat(isTonaring(Adam())).isTrue()
+        assertThat(isTonaring(Felix())).isFalse
+        assertThat(isTonaring(Adam())).isTrue
     }
 
     @Test
@@ -63,8 +63,8 @@ class SealedClassesTest {
             is Car.Saab -> false
         }
 
-        assertThat(gettingUpdates(Car.Volvo)).isTrue()
-        assertThat(gettingUpdates(Car.Saab)).isFalse()
+        assertThat(gettingUpdates(Car.Volvo)).isTrue
+        assertThat(gettingUpdates(Car.Saab)).isFalse
 
     }
 
@@ -83,17 +83,17 @@ class SealedDataClassesTest {
 
     @Test
     fun `a good apple`() {
-        assertThat(Fruit.Apple(true).isGood).isTrue()
+        assertThat(Fruit.Apple(true).isGood).isTrue
     }
 
     @Test
     fun `a bad apple`() {
-        assertThat(Fruit.Apple(false).isGood).isTrue()
+        assertThat(Fruit.Apple(false).isGood).isTrue
     }
 
     @Test
     fun `pineapple is never good`() {
-        assertThat(Fruit.Pineapple.isGood).isFalse()
+        assertThat(Fruit.Pineapple.isGood).isFalse
     }
 }
 

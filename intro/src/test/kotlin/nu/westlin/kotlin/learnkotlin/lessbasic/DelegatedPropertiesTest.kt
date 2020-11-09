@@ -56,6 +56,6 @@ class DelegatedPropertiesTest {
 
     @Test
     fun `house has roof`() {
-        assertThat(House().roof).isTrue()
+        assertThat(House().roof).isTrue
     }
 }

@@ -18,14 +18,14 @@ class KotlinResultTest {
     @Test
     fun `happy path`() {
         val result = Api().getResult("foo")
-        assertThat(result.isSuccess).isTrue()
+        assertThat(result.isSuccess).isTrue
         assertThat(result.getOrNull()).isEqualTo("Could handle foo")
     }
 
     @Test
     fun `unhappy path`() {
         val result = Api().getResult("foobar")
-        assertThat(result.isFailure).isTrue()
+        assertThat(result.isFailure).isTrue
         with(result.exceptionOrNull()) {
             assertThat(this).isInstanceOf(RuntimeException::class.java)
             assertThat(this?.message).isEqualTo("foobar could not be handled")

@@ -76,14 +76,14 @@ class DataClassCopyTest {
         val original = DataClassA("foo")
         val copy = original.copy()
 
-        assertThat(copy == original).isTrue()
-        assertThat(copy === original).isFalse()
+        assertThat(copy == original).isTrue
+        assertThat(copy === original).isFalse
 
-        assertThat(copy.stringList == original.stringList).isTrue()
-        assertThat(copy.stringList === original.stringList).isFalse()
+        assertThat(copy.stringList == original.stringList).isTrue
+        assertThat(copy.stringList === original.stringList).isFalse
 
-        assertThat(copy.reg1List == original.reg1List).isTrue()
-        assertThat(copy.reg1List === original.reg1List).isFalse()
+        assertThat(copy.reg1List == original.reg1List).isTrue
+        assertThat(copy.reg1List === original.reg1List).isFalse
     }
 
     @Test
@@ -91,17 +91,17 @@ class DataClassCopyTest {
         val original = DataClassC("foo")
         val copy = original.copy()
 
-        assertThat(copy == original).isTrue()
-        assertThat(copy === original).isFalse()
+        assertThat(copy == original).isTrue
+        assertThat(copy === original).isFalse
 
-        assertThat(copy.propertyA == original.propertyA).isTrue()
+        assertThat(copy.propertyA == original.propertyA).isTrue
         copy.propertyA = copy.propertyA + "1"
-        assertThat(copy.propertyA == original.propertyA).isFalse()
+        assertThat(copy.propertyA == original.propertyA).isFalse
 
-        assertThat(copy.cList == original.cList).isTrue()
-        assertThat(copy.cList === original.cList).isFalse()
+        assertThat(copy.cList == original.cList).isTrue
+        assertThat(copy.cList === original.cList).isFalse
 
-        assertThat(copy.aList == original.aList).isTrue()
-        assertThat(copy.aList === original.aList).isFalse()
+        assertThat(copy.aList == original.aList).isTrue
+        assertThat(copy.aList === original.aList).isFalse
     }
 }

@@ -20,14 +20,14 @@ class DataClassesTest {
 
         val person2 = person.copy()
         // equals (and hashCode) är automatgenererade
-        assertThat(person2 == person).isTrue()
-        assertThat(person2 === person).isFalse()
+        assertThat(person2 == person).isTrue
+        assertThat(person2 === person).isFalse
 
         val person3 = person2.copy(age = 79)
         // equals (and hashCode) är automatgenererade
         assertThat(person3.age).isEqualTo(79)
-        assertThat(person3 == person2).isFalse()
-        assertThat(person3 === person2).isFalse()
+        assertThat(person3 == person2).isFalse
+        assertThat(person3 === person2).isFalse
     }
 
 

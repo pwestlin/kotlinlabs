@@ -88,7 +88,7 @@ class WhenTest {
             string == "bar" -> true
             else -> false
         }
-        assertThat(isFooOrBar).isFalse()
+        assertThat(isFooOrBar).isFalse
 
         // ...or a better form: "when with subject"
         val isFooOrBar2 = when (string) {
@@ -96,7 +96,7 @@ class WhenTest {
             "bar" -> true
             else -> false
         }
-        assertThat(isFooOrBar2).isFalse()
+        assertThat(isFooOrBar2).isFalse
     }
 
     @Test

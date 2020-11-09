@@ -17,21 +17,21 @@ class EqualityTest {
         val car = Car("Volvo", "PV", "1970")
 
         val equalCar = Car("Volvo", "PV", "1970")
-        assertThat(equalCar == car).isTrue()
-        assertThat(equalCar === car).isFalse()
+        assertThat(equalCar == car).isTrue
+        assertThat(equalCar === car).isFalse
 
         val notEqualCar = Car("Volvo", "Amazon", "1966")
-        assertThat(notEqualCar == car).isFalse()
-        assertThat(notEqualCar === car).isFalse()
+        assertThat(notEqualCar == car).isFalse
+        assertThat(notEqualCar === car).isFalse
 
         val sameCar = car
-        assertThat(sameCar == car).isTrue()
-        assertThat(sameCar === car).isTrue()
+        assertThat(sameCar == car).isTrue
+        assertThat(sameCar === car).isTrue
 
 
         val isNull = null
         val isNotNull = "foo"
-        assertThat(isNull == isNotNull).isFalse()   // == funkar alltså på null utan att ge NPE :)
+        assertThat(isNull == isNotNull).isFalse   // == funkar alltså på null utan att ge NPE :)
     }
 
 

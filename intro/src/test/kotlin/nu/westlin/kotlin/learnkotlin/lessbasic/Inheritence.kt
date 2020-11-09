@@ -61,7 +61,7 @@ class InheritenceTest {
         val child2 = child.copy()
         println("child2 = $child2")
 
-        assertThat(child2 == child).isFalse()
+        assertThat(child2 == child).isFalse
         assertThat(child2.name).isEqualTo(child.name)
     }
 }
@@ -186,6 +186,6 @@ class InterfaceInheritanceTest {
     @Test
     fun `Test DogPrediate`() {
         val prediate = DogPrediate()
-        assertThat(prediate.test(Dog("doggo"))).isTrue()
+        assertThat(prediate.test(Dog("doggo"))).isTrue
     }
 }

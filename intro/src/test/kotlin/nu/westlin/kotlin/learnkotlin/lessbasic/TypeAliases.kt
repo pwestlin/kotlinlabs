@@ -27,7 +27,7 @@ class TypeAliasesTest {
         val customerName: CustomerName = "foo"
         val address: Address = "foo"
 
-        assertThat(customerName == address).isTrue()
+        assertThat(customerName == address).isTrue
 
         // A way to use actual types in a less expensive (way compared to create a class) is inline classes: https://kotlinlang.org/docs/reference/inline-classes.html
     }
