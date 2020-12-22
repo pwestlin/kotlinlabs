@@ -1,9 +1,11 @@
 package nu.westlin.kotlin.learnkotlin.lessbasic.coroutines
 
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
@@ -19,9 +21,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.net.URI
 import java.time.Instant
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -365,5 +371,142 @@ internal class AntoherFlowTest {
                 }
         }
         print("\nCollected in $time ms")
+    }
+}
+
+@ExperimentalCoroutinesApi
+internal class YetAnotherFlowTest {
+
+    private fun createFlow(): Flow<Int> = flow {
+        for (i in 1..3) {
+            delay(100)
+            log("emiting $i")
+            emit(i)
+        }
+    }
+
+    @Test
+    fun `test flow`() = runBlocking {
+        val flow = createFlow()
+        withContext(Dispatchers.IO) {
+            flow.collect {
+                log("$it")
+            }
+        }
+    }
+}
+
+@ExperimentalCoroutinesApi
+internal class FastEmiterSlowConsumerFlowTest {
+
+    private fun createFlow(number: Int = 32): Flow<Int> = flow {
+        for (i in 1..number) {
+            delay(10)
+            log("emit $i")
+            emit(i)
+        }
+    }
+
+    @Test
+    fun `sfgasfg fea sdg`() = runBlocking {
+        val execTime = measureTimeMillis {
+            createFlow(4)
+/*
+                .filter {
+                    log("filter $it")
+                    it % 2 == 0
+                }
+*/
+                .buffer(8)
+                .map {
+                    delay(100)
+                    log("map $it")
+                    it * 2
+                }
+                //.buffer(8)
+                .flowOn(Dispatchers.Default)
+                .collect {
+                    log("collect $it")
+                }
+        }
+
+        log("execTime: $execTime ms")
+    }
+
+    @Test
+    fun `sfgasfg fea sdg 2`() = runBlocking {
+        val execTime = measureTimeMillis {
+            val result: ArrayList<Deferred<Int>> = ArrayList()
+            createFlow(4)
+                .buffer(8)
+                .collect {
+                    result.add(async {
+                        delay(100)
+                        log("map $it")
+                        it * 2
+                    })
+                }
+            result.awaitAll()
+        }
+
+        log("execTime: $execTime ms")
+    }
+
+    @Test
+    fun `test flow`() = runBlocking {
+        val flow = createFlow()
+/*
+        withContext(Dispatchers.IO) {
+            flow.collect {
+                log("$it")
+            }
+        }
+*/
+        val execTime = measureTimeMillis {
+            //coroutineScope {
+            withContext(Dispatchers.IO) {
+                flow
+                    .buffer(8)
+                    .collect {
+                        launch/*(Dispatchers.Default)*/ {
+                            delay(100)
+                            log("Collected $it")
+                        }
+                    }
+            }
+        }
+        log("execTime: $execTime ms")
+        //assertThat(execTime).isBetween()
+    }
+
+    @Test
+    fun `satgdafyh sdfh `() {
+        @Suppress("RedundantNullableReturnType")
+        val foo: List<Map<URI, String>>? = listOf(
+            mapOf(
+                URI("foo1") to "foo1"
+            )
+            , mapOf(
+                URI("foo2") to "foo2"
+            )
+            , mapOf(
+                URI("foo3") to "foo3"
+            )
+            , mapOf(
+                URI("foo4") to "foo4"
+            )
+        )
+
+        val a = foo?.flatMap { it.entries }
+                    ?.groupBy({ it.key }, { it.value })
+                    ?.mapValues { it.value.first() }
+        println(a)
+        val b = foo?.map { it.entries.first().toPair() }?.toMap()
+        println(b)
+
+
+        //assertThat(a).isEqualTo(b)
+
+        println("${foo?.fold(mapOf<URI,String>()) { acc, map -> acc + map }}")
     }
 }

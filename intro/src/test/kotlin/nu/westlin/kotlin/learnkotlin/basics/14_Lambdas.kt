@@ -1,4 +1,27 @@
-@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName")
+@file:Suppress(
+    "UNUSED_VARIABLE",
+    "UNUSED_VALUE",
+    "RedundantExplicitType",
+    "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE",
+    "VARIABLE_WITH_REDUNDANT_INITIALIZER",
+    "ALWAYS_NULL",
+    "UNNECESSARY_SAFE_CALL",
+    "EXPERIMENTAL_FEATURE_WARNING",
+    "MemberVisibilityCanBePrivate",
+    "SimplifyBooleanWithConstants",
+    "ConstantConditionIf",
+    "MoveLambdaOutsideParentheses",
+    "UnnecessaryVariable",
+    "unused",
+    "UNUSED_PARAMETER",
+    "RemoveRedundantBackticks",
+    "NullChecksToSafeCall",
+    "LiftReturnOrAssignment",
+    "ReplaceGetOrSet",
+    "NonAsciiCharacters",
+    "PackageName",
+    "ClassName"
+)
 
 package nu.westlin.kotlin.learnkotlin.basics
 
@@ -8,12 +31,16 @@ import io.mockk.verify
 import nu.westlin.kotlin.learnkotlin.basics.PantDSLTest.Hindertyp.ALLVARLIGT_FEL
 import nu.westlin.kotlin.learnkotlin.basics.PantDSLTest.Hindertyp.KFM_SPARR
 import nu.westlin.kotlin.learnkotlin.basics.PantDSLTest.TransactionManager.Work
+import nu.westlin.kotlin.learnkotlin.lessbasic.coroutines.log
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.io.Closeable
 import java.io.StringReader
 import java.time.Instant
+import java.util.concurrent.Executors
+import kotlin.concurrent.thread
+import kotlin.system.measureTimeMillis
 
 class LambdasTest {
 
@@ -95,7 +122,11 @@ class LambdasTest {
     @Suppress("SimplifyBooleanWithConstants")
     @Test
     fun `do something if else`() {
-        fun <T> doSomethingIfSomethingOrElseSomethingElse(someCondition: () -> Boolean, doSomething: () -> T, doSomethingElse: () -> T): T {
+        fun <T> doSomethingIfSomethingOrElseSomethingElse(
+            someCondition: () -> Boolean,
+            doSomething: () -> T,
+            doSomethingElse: () -> T
+        ): T {
             return if (someCondition()) doSomething() else doSomethingElse()
         }
 
@@ -310,7 +341,7 @@ internal class FunctionReferenceAndCompositionTest {
 }
 
 @Suppress("ConvertTryFinallyToUseCall")
-internal class FooTest {
+internal class EnKlassMedEnSträngTest {
 
     @Test
     fun `foo bar`() {
@@ -707,19 +738,28 @@ sealed class ResultOf2<out R> {
     object UnknownErrorFailure : ResultOf2<String>()
 }
 
-val <T> T.exhaustive: T
-    get() = this
 
 internal class SealedClassTest {
+
+    val <T> T.exhaustive: T
+        get() = this
 
     @Test
     fun `asdfasd ga sdgas`() {
         fun canBeAFailure(boolean: Boolean): ResultOf<String> {
-            return if (boolean) ResultOf.Success("Jaaa!") else ResultOf.Failure("Hä gick på skit", RuntimeException("Blä"))
+            return if (boolean) ResultOf.Success("Jaaa!") else ResultOf.Failure(
+                "Hä gick på skit",
+                RuntimeException("Blä")
+            )
         }
 
         assertThat(canBeAFailure(true)).isEqualTo(ResultOf.Success("Jaaa!"))
-        assertThat(canBeAFailure(false)).isEqualToIgnoringGivenFields(ResultOf.Failure("Hä gick på skit", RuntimeException("Blä")), "throwable")
+        assertThat(canBeAFailure(false)).isEqualToIgnoringGivenFields(
+            ResultOf.Failure(
+                "Hä gick på skit",
+                RuntimeException("Blä")
+            ), "throwable"
+        )
     }
 
     @Test
@@ -736,12 +776,98 @@ internal class SealedClassTest {
         assertThat(canBeAFailure(2)).isEqualTo(ResultOf2.NumberFailure("2"))
         assertThat(canBeAFailure(2626)).isEqualTo(ResultOf2.MegaFailure("Shit!"))
 
-        println(when (canBeAFailure(1)) {
-            is ResultOf2.Success -> "Det gick bra!"
-            is ResultOf2.NumberFailure -> "Vi fick nummerfel..."
-            is ResultOf2.MegaFailure -> "Vi fick megafel... :/"
-            is ResultOf2.UnknownErrorFailure -> "Vi har ingen aning vad som gick snett..."
-        }.exhaustive)
+        when (canBeAFailure(1)) {
+            is ResultOf2.Success -> println("Det gick bra!")
+            is ResultOf2.NumberFailure -> println("Vi fick nummerfel...")
+            is ResultOf2.MegaFailure -> println("Vi fick megafel... :/")
+            is ResultOf2.UnknownErrorFailure -> println("Vi har ingen aning vad som gick snett...")
+        }.exhaustive
+    }
+}
+
+internal class ExhaustiveSealedClassTest {
+
+    abstract sealed class Fordon(open val namn: String, open val antalHjul: Int) {
+        data class Cykel(override val namn: String, override val antalHjul: Int) : Fordon(namn, antalHjul)
+        data class Cross(override val namn: String, override val antalHjul: Int) : Fordon(namn, antalHjul)
+        data class Gokart(override val namn: String, override val antalHjul: Int) : Fordon(namn, antalHjul)
+    }
+
+    @Test
+    fun `when som uttryck`() {
+        val fordon: Fordon = Fordon.Cykel("Min velociped", 2)
+
+        val typ = when (fordon) {
+            is Fordon.Cykel -> "En cykel"
+            is Fordon.Cross -> "En cross"
+            is Fordon.Gokart -> "En gokart"
+        }
+
+        assertThat(typ).isEqualTo("En cykel")
+    }
+
+    @Test
+    fun `when utan uttryck`() {
+        val fordon: Fordon = Fordon.Cross("Lera är kul!", 2)
+
+        var typ: String? = null
+
+        fun setTyp(value: String) {
+            typ = value
+        }
+
+        when (fordon) {
+            //is Fordon.Cykel -> setTyp("En cykel")
+            is Fordon.Cross -> setTyp("En cross")
+            is Fordon.Gokart -> setTyp("En gokart")
+        }
+
+        assertThat(typ).isEqualTo("En cross")
+    }
+
+    val <T> T.exhaustive: T
+        get() = this
+
+    @Test
+    fun `when utan uttryck men som exhaustive mha extension property`() {
+        val fordon: Fordon = Fordon.Cross("Lera är kul!", 2)
+
+        var typ: String? = null
+
+        fun setTyp(value: String) {
+            typ = value
+        }
+
+        when (fordon) {
+            is Fordon.Cykel -> setTyp("En cykel")
+            is Fordon.Cross -> setTyp("En cross")
+            is Fordon.Gokart -> setTyp("En gokart")
+        }.exhaustive
+
+        assertThat(typ).isEqualTo("En cross")
+    }
+
+    object Be {
+        inline infix fun <reified T> exhaustive(any: T?) = any
+    }
+
+    @Test
+    fun `when utan uttryck men som exhaustive mha funktion`() {
+        val fordon: Fordon = Fordon.Gokart("Asfalt är kul!", 2)
+
+        var typ: String? = null
+
+        fun setTyp(value: String) {
+            typ = value
+        }
+
+        Be exhaustive when (fordon) {
+            is Fordon.Cykel -> setTyp("En cykel")
+            is Fordon.Cross -> setTyp("En cross")
+            is Fordon.Gokart -> setTyp("En gokart")
+        }.exhaustive
+
+        assertThat(typ).isEqualTo("En gokart")
     }
 }
 
@@ -795,5 +921,47 @@ internal class ApplyTest {
 
         person.firstName = "Sune"
         assertThat(person.fullName).isEqualTo("Sune Jöns")
+    }
+}
+
+internal class FooTest {
+
+    fun square(int: Int): Int {
+        log("Jag beräknar kvadraten på $int")
+        Thread.sleep(1000)  // Simulerar en tidskrävande beräkning
+        return int * int
+    }
+
+    @Test
+    fun `sekventiellt`() {
+        val exekveringstid = measureTimeMillis {
+            log("Kvadraten på 4 är ${square(4)}")
+            log("Kvadraten på 5 är ${square(5)}")
+        }
+        log("Total exekveringstid: $exekveringstid ms")
+    }
+
+    @Test
+    fun `parallellt mha trådar`() {
+        val exekveringstid = measureTimeMillis {
+            thread { log("Kvadraten på 4 är ${square(4)}") }
+            thread { log("Kvadraten på 4 är ${square(5)}") }
+        }
+        log("Total exekveringstid: $exekveringstid ms")
+    }
+
+    @Test
+    fun `parallellt mha trådar och Futures`() {
+        // Skapa en trådpool med 7 trådar
+        val executor = Executors.newFixedThreadPool(7)
+
+        val exekveringstid = measureTimeMillis {
+            val future4 = executor.submit { log("Kvadraten på 4 är ${square(4)}") }
+            val future5 = executor.submit { log("Kvadraten på 5 är ${square(5)}") }
+
+            future4.get()
+            future5.get()
+        }
+        log("Total exekveringstid: $exekveringstid ms")
     }
 }

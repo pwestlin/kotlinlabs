@@ -10,7 +10,7 @@ internal class ExtensionFunctionsTest {
 
     // Här börjar det bli fränt på riktigt!
 
-    val String.lastChar: Char
+    private val String.lastChar: Char
         get() = this.toCharArray().last()
 
     @Test
@@ -36,6 +36,16 @@ internal class ExtensionFunctionsTest {
     @Test
     fun `extension properties`() {
         assertThat("Foobar".lastChar).isEqualTo('r')
+    }
+
+
+    // Men om String är null då?
+    private fun String?.containsSubstring(substring: String): Boolean = this?.contains(substring) ?: false
+
+    @Test
+    fun `extension function och null`() {
+        val string: String? = null
+        assertThat(string.containsSubstring("foo")).isFalse
     }
 
 

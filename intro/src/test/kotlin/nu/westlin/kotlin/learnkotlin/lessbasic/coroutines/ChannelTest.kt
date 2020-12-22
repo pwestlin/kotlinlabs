@@ -7,9 +7,16 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.test.runBlockingTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
@@ -79,6 +86,7 @@ internal class ChannelTest {
                 channel.send(msg)
             }
         }
+
         class Receiver(private val channel: ReceiveChannel<String>) {
             suspend fun receive(): String = channel.receive()
         }
@@ -99,6 +107,61 @@ internal class ChannelTest {
                 log("Received: ${receiver.receive()}")
             }
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `flow to channel to multiple consumers to list`() = runBlocking<Unit> {
+        val flow: Flow<Int> = flow {
+            for (i in 1..3) {
+                delay(100)
+                log("Emit $i")
+                emit(i)
+            }
+        }
+        val channel: Channel<Int> = Channel(3)
+        val sendChannel: SendChannel<Int> = channel
+        val receiveChannel: ReceiveChannel<Int> = channel
+
+        val semaphore = Semaphore(3)
+
+/*
+        while(true) {
+            semaphore.withPermit {
+
+            }
+        }
+*/
+        var run = true
+
+        repeat(3) {
+            launch(Dispatchers.Default) {
+                //while(run) {
+                delay(300)
+                log("Received ${receiveChannel.receive()}")
+                //}
+            }
+        }
+
+        flow
+            //.onCompletion { channel.close() }
+            .onCompletion { run = false }
+            .buffer(3)
+            .collect {
+                log("Collect $it")
+                sendChannel.send(it)
+            }
+    }
+
+
+    @Test
+    fun `asdgsdf sfghasd`() {
+
+        fun maxParenthesesDepth(string: String) = string.filter { it == '(' || it == ')' }.map { if (it == '(') 1 else -1 }.scan(0, { acc, value -> acc + value }).maxOrNull() ?: 0
+
+        assertThat(maxParenthesesDepth("foo")).isEqualTo(0)
+        assertThat(maxParenthesesDepth("(1+7)")).isEqualTo(1)
+        assertThat(maxParenthesesDepth("(1+(2*3)+((8)/4))+1")).isEqualTo(3)
     }
 }
 

@@ -31,6 +31,7 @@ class CoroutinesTest {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     fun slowSync(execTime: Long): Long {
+        logger.info("slowSync")
         Thread.sleep(execTime * 1000)
         return execTime
     }
@@ -468,10 +469,34 @@ class CoroutinesTest {
     }
 
     @Test
-    fun `atest withContext`() {
-        runBlocking {
-            launch { slowWork(1) }
+    fun `atest withContext with async`() = runBlocking<Unit> {
+        withContext(Dispatchers.Default) {
+            slowWork(1)
         }
+    }
+
+    @Test
+    fun `atest withContext with sync`() = runBlocking<Unit> {
+        withContext(Dispatchers.Default) {
+            slowSync(1)
+        }
+        withContext(Dispatchers.Default) {
+            slowSync(1)
+        }
+    }
+
+    @Test
+    fun `atest withContext with sync 2`() = runBlocking<Unit> {
+        suspend fun doWithContext() {
+            withContext(Dispatchers.Default) {
+                slowSync(1)
+            }
+        }
+
+        logger.info("Start")
+        doWithContext()
+        doWithContext()
+        logger.info("End")
     }
 
     @Test
