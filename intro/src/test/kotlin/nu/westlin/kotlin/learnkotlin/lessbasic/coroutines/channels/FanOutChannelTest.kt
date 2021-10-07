@@ -21,7 +21,7 @@ class FanOutChannelTest {
      */
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun CoroutineScope.produceraMeddelanden() = produce<Char>(capacity = 100) {
+    private fun CoroutineScope.produceraMeddelanden() = produce(capacity = 100) {
         var code = 65
             while (true) {
                 Char(code++).let { char ->
@@ -40,7 +40,7 @@ class FanOutChannelTest {
     }
 
     @Test
-    fun `fan-out channel`() = runBlocking<Unit> {
+    fun `fan-out channel`() = runBlocking {
         val producent = produceraMeddelanden()
         repeat(5) { startaKonsument(it + 1, producent) }
         delay(950)
