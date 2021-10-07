@@ -152,17 +152,6 @@ internal class ChannelTest {
                 sendChannel.send(it)
             }
     }
-
-
-    @Test
-    fun `asdgsdf sfghasd`() {
-
-        fun maxParenthesesDepth(string: String) = string.filter { it == '(' || it == ')' }.map { if (it == '(') 1 else -1 }.scan(0, { acc, value -> acc + value }).maxOrNull() ?: 0
-
-        assertThat(maxParenthesesDepth("foo")).isEqualTo(0)
-        assertThat(maxParenthesesDepth("(1+7)")).isEqualTo(1)
-        assertThat(maxParenthesesDepth("(1+(2*3)+((8)/4))+1")).isEqualTo(3)
-    }
 }
 
 /**

@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
+import java.time.Instant
 import kotlin.system.measureTimeMillis
 
 sealed class CoffeeBean {
@@ -230,6 +231,6 @@ private suspend fun makeCappuccino(order: Menu.Cappuccino, espressoShot: Espress
     return Beverage.Cappuccino(order, espressoShot, milk)
 }
 
-fun log(v: Any) = println("[${Thread.currentThread().name}] $v")
+fun log(msg: Any?) = println("${Instant.now()}: $msg - ${Thread.currentThread().name}")
 
 fun Float.format(digits: Int): String = java.lang.String.format("%.${digits}f", this)

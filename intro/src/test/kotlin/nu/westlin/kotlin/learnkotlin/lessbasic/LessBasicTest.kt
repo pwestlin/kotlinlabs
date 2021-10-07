@@ -1,4 +1,30 @@
-@file:Suppress("UNUSED_VARIABLE", "UNUSED_VALUE", "RedundantExplicitType", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "VARIABLE_WITH_REDUNDANT_INITIALIZER", "ALWAYS_NULL", "UNNECESSARY_SAFE_CALL", "EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "SimplifyBooleanWithConstants", "ConstantConditionIf", "MoveLambdaOutsideParentheses", "UnnecessaryVariable", "unused", "UNUSED_PARAMETER", "RemoveRedundantBackticks", "NullChecksToSafeCall", "LiftReturnOrAssignment", "ReplaceGetOrSet", "NonAsciiCharacters", "PackageName", "ClassName", "UNUSED_EXPRESSION", "UnusedEquals", "ReplaceSingleLineLet")
+@file:Suppress(
+    "UNUSED_VARIABLE",
+    "UNUSED_VALUE",
+    "RedundantExplicitType",
+    "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE",
+    "VARIABLE_WITH_REDUNDANT_INITIALIZER",
+    "ALWAYS_NULL",
+    "UNNECESSARY_SAFE_CALL",
+    "EXPERIMENTAL_FEATURE_WARNING",
+    "MemberVisibilityCanBePrivate",
+    "SimplifyBooleanWithConstants",
+    "ConstantConditionIf",
+    "MoveLambdaOutsideParentheses",
+    "UnnecessaryVariable",
+    "unused",
+    "UNUSED_PARAMETER",
+    "RemoveRedundantBackticks",
+    "NullChecksToSafeCall",
+    "LiftReturnOrAssignment",
+    "ReplaceGetOrSet",
+    "NonAsciiCharacters",
+    "PackageName",
+    "ClassName",
+    "UNUSED_EXPRESSION",
+    "UnusedEquals",
+    "ReplaceSingleLineLet"
+)
 
 package nu.westlin.kotlin.learnkotlin.lessbasic
 
@@ -283,5 +309,23 @@ class LessBasicTest {
             assertThat(a).isEqualTo(1)
             assertThat(b).isEqualTo(2)
         }
+    }
+
+    @Test
+    fun `Elvis operation with multiple lines`() {
+        fun isOrIsNotNull(nullable: Any?): String {
+            return nullable?.let { "Is not null" } ?: run {
+                // Gör knasiga grejer bara för att det går
+                val a = "foo"
+                val reversed = a.reversed()
+
+                "Is null"
+            }
+        }
+
+        assertThat(isOrIsNotNull(null)).isEqualTo("Is null")
+
+        val nullable: String? = null
+        assertThat(nullable ?: "is null").isEqualTo("is null")
     }
 }

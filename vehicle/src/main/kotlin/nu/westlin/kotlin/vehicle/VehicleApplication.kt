@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import java.util.Locale
 import javax.servlet.http.HttpServletResponse
 
 
@@ -93,7 +94,7 @@ class TypeEnumConverter : Converter<String, Type> {
 
     override fun convert(source: String): Type {
         try {
-            return Type.valueOf(source.toUpperCase())
+            return Type.valueOf(source.uppercase(Locale.getDefault()))
         } catch (e: IllegalArgumentException) {
             logger.error("Type '$source' is not a valid type", e)
             throw e

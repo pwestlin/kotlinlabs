@@ -33,7 +33,7 @@ private class RetryableTest {
         fun foo(): String = "foo"
     }
 
-    val mock = mockk<Repository>()
+    private val mock = mockk<Repository>()
 
     @Test
     fun `foo should be called once and return its value`() {

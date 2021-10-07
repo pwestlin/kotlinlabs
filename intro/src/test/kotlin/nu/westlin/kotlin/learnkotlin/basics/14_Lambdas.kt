@@ -89,7 +89,7 @@ class LambdasTest {
 
     @Suppress("DIVISION_BY_ZERO")
     @Test
-    fun `when does a lambda run?`() {
+    fun `when does a lambda run`() {
         fun divisionByZero(): Int {
             println("${Instant.now()}: Doing calculation")
             return 1 / 0
@@ -267,7 +267,7 @@ class LambdasTest {
         }
 
         @Test
-        fun `lambdas are "lazy"`() {
+        fun `lambdas are like lazy`() {
             class Logger(private val level: String) {
                 fun log(level: String, message: String) {
                     if (level == this.level) println(message)
@@ -668,7 +668,8 @@ internal class PantDSLTest {
 
 }
 
-inline class InlinedClass(val bar: String)
+@JvmInline
+value class InlinedClass(val bar: String)
 
 class InlineFoo {
     fun takesInlinedClassAsAParam(inlinedClass: InlinedClass) = inlinedClass.bar
@@ -787,7 +788,7 @@ internal class SealedClassTest {
 
 internal class ExhaustiveSealedClassTest {
 
-    abstract sealed class Fordon(open val namn: String, open val antalHjul: Int) {
+    sealed class Fordon(open val namn: String, open val antalHjul: Int) {
         data class Cykel(override val namn: String, override val antalHjul: Int) : Fordon(namn, antalHjul)
         data class Cross(override val namn: String, override val antalHjul: Int) : Fordon(namn, antalHjul)
         data class Gokart(override val namn: String, override val antalHjul: Int) : Fordon(namn, antalHjul)

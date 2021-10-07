@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.time.Instant
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.system.measureTimeMillis
@@ -63,7 +64,7 @@ internal class FlowTest {
     private fun Flow<String>.uppercase(): Flow<String> {
         return flow {
             collect {
-                emit(it.toUpperCase())
+                emit(it.uppercase(Locale.getDefault()))
             }
         }
     }
@@ -80,7 +81,7 @@ internal class FlowTest {
 
         theSimpsonsFlow()
             .flowOn(Dispatchers.IO)
-            .map { it.toUpperCase().also { _ -> log(it) } }
+            .map { it.uppercase(Locale.getDefault()).also { _ -> log(it) } }
             .flowOn(Dispatchers.Default)
             .filter { it.startsWith("M").also { _ -> log(it) } }
             .flowOn(Dispatchers.Unconfined)
@@ -89,7 +90,7 @@ internal class FlowTest {
 
     @Test
     fun `flow of the Simpsons on separate threads and coroutines`() = runBlocking {
-        fun toUppercase(value: String): String = value.toUpperCase().also { log(it) }
+        fun toUppercase(value: String): String = value.uppercase(Locale.getDefault()).also { log(it) }
         fun startsWith(value: String, start: String): Boolean = value.startsWith(start).also { log(value) }
 
         theSimpsonsFlow()

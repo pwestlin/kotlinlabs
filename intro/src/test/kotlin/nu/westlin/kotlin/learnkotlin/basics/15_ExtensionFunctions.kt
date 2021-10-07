@@ -4,6 +4,7 @@ package nu.westlin.kotlin.learnkotlin.basics
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.Locale
 
 
 internal class ExtensionFunctionsTest {
@@ -17,10 +18,10 @@ internal class ExtensionFunctionsTest {
     fun `extension functions`() {
 
         val string = "foo"
-        assertThat(string.reversed().toUpperCase()).isEqualTo("OOF")
+        assertThat(string.reversed().uppercase(Locale.getDefault())).isEqualTo("OOF")
 
         // Vi vill att det ska finnas en funktion för att reversera strängen och göra den till versaler
-        fun String.reverseAndToUpperCase() = this.reversed().toUpperCase()
+        fun String.reverseAndToUpperCase() = this.reversed().uppercase(Locale.getDefault())
         assertThat(string.reverseAndToUpperCase()).isEqualTo("OOF")
 
     }

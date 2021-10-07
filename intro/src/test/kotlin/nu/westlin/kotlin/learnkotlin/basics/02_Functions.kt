@@ -4,6 +4,7 @@ package nu.westlin.kotlin.learnkotlin.basics
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.Locale
 
 class FunctionsTest {
 
@@ -96,7 +97,7 @@ class FunctionsTest {
                 formatted = formatted.reversed()
             }
             if (upperCase) {
-                formatted = formatted.toUpperCase()
+                formatted = formatted.uppercase(Locale.getDefault())
             }
 
             return formatted

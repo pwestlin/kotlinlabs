@@ -2,6 +2,7 @@ package nu.westlin.kotlin.learnkotlin.lessbasic
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.Locale
 
 data class Person(var firstname: String? = null, var surname: String? = null)
 
@@ -24,7 +25,7 @@ class LetTest {
 
         val result = returnString().let {
             println("length of '$it' is ${it.length}")
-            println("Upper case of '$it' is ${it.toUpperCase()}")
+            println("Upper case of '$it' is ${it.uppercase(Locale.getDefault())}")
         }
         assertThat(result).isInstanceOf(Unit::class.java)
     }

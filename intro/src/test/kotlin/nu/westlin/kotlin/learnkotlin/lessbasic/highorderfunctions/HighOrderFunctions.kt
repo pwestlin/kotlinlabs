@@ -40,7 +40,7 @@ class HighOrderFunctions {
         }
 
         @Test
-        fun `filter even numbers using "half implicit" return`() {
+        fun `filter even numbers using like half implicit return`() {
             assertThat(intItems.filter {
                 val even = it % 2 == 0
                 even

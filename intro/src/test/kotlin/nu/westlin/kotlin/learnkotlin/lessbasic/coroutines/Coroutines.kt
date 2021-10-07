@@ -1,4 +1,11 @@
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING", "MemberVisibilityCanBePrivate", "PackageName", "TestFunctionName", "NonAsciiCharacters", "SameParameterValue")
+@file:Suppress(
+    "EXPERIMENTAL_FEATURE_WARNING",
+    "MemberVisibilityCanBePrivate",
+    "PackageName",
+    "TestFunctionName",
+    "NonAsciiCharacters",
+    "SameParameterValue"
+)
 
 package nu.westlin.kotlin.learnkotlin.lessbasic.coroutines
 
@@ -7,25 +14,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 @ExperimentalCoroutinesApi
-@Suppress("RemoveRedundantBackticks")
+@Suppress("RemoveRedundantBackticks", "UNUSED_VARIABLE")
 @ObsoleteCoroutinesApi
 class CoroutinesTest {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
@@ -76,7 +88,7 @@ class CoroutinesTest {
                 execTimes.add(async { slowAsync(3) })
                 execTimes.add(async { slowAsync(2) })
                 execTimes.add(async { slowAsync(1) })
-                log("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
+                log("Sum of exec times: ${execTimes.sumOf { it.await().toInt() } * 1000}")
             }
         }
 
@@ -91,7 +103,7 @@ class CoroutinesTest {
                 execTimes.add(async(Dispatchers.Default) { slowAsync(3) })
                 execTimes.add(async(Dispatchers.Default) { slowAsync(2) })
                 execTimes.add(async(Dispatchers.Default) { slowAsync(1) })
-                log("Sum of exec times: ${execTimes.sumBy { it.await().toInt() } * 1000}")
+                log("Sum of exec times: ${execTimes.sumOf { it.await().toInt() } * 1000}")
             }
         }
 
@@ -287,7 +299,11 @@ class CoroutinesTest {
         }
     }
 
-    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "UNREACHABLE_CODE", "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
+    @Suppress(
+        "IMPLICIT_NOTHING_AS_TYPE_PARAMETER",
+        "UNREACHABLE_CODE",
+        "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION"
+    )
     @Test
     fun `felhantering - 1`() {
         runBlocking {
@@ -600,6 +616,48 @@ class CoroutinesTest {
 
         println("${System.currentTimeMillis() - realStartTime} ms")  // ~ 11 ms
         println("${currentTime - virtualStartTime} ms")              // 1000 ms
+    }
+
+    @Test
+    fun `custom CoroutineDispatcher`() = runBlocking {
+        val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+        val semaphore = Semaphore(8)
+
+        val execTime = measureTimeMillis {
+            val list = (1..8).toList().map { value ->
+                async(dispatcher) {
+                    semaphore.withPermit {
+                        log("start")
+                        delay(1000)
+                        val v = value * 2
+                        log("end")
+                        v
+                    }
+                }
+            }.awaitAll()
+
+            log(list)
+        }
+        log("execTime = $execTime ms")
+    }
+
+    @Test
+    fun `split into chunks`() = runBlocking {
+        val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+
+        val execTime = measureTimeMillis {
+            val list = (1..8).toList().chunked(8).map { list ->
+                list.map { value ->
+                    async {
+                        log("start")
+                        delay(1000)
+                        val v = value * 2
+                        log("end")
+                        v
+                    }
+                }
+            }
+        }
     }
 }
 

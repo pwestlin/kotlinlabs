@@ -4,6 +4,7 @@ package nu.westlin.kotlin.learnkotlin.basics
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.Locale
 
 class CollectionsTest {
     val fruits = listOf("banana", "avocado", "apple", "kiwifruit", "orange")
@@ -83,7 +84,7 @@ class CollectionsTest {
             //.filter { s -> s.startsWith("a") }
             .filter { it.startsWith("a") }      // "it" är default-namnet för en ensam parameter i strömmar
             .sortedBy { it }
-            .map { it.toUpperCase() }
+            .map { it.uppercase(Locale.getDefault()) }
         // Inget anrop till .collect(Collectors.toList())
         assertThat(fruitsWithA).containsExactlyInAnyOrder("AVOCADO", "APPLE")
     }

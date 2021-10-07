@@ -21,8 +21,10 @@ internal class OrdinaryClassesTest {
     }
 }
 
-inline class Firstname(val value: String)
-inline class Lastname(val value: String)
+@JvmInline
+value class Firstname(val value: String)
+@JvmInline
+value class Lastname(val value: String)
 
 internal class InlineClassesTest {
 
