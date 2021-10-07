@@ -10,7 +10,7 @@ import nu.westlin.kotlin.learnkotlin.lessbasic.coroutines.log
 import org.junit.jupiter.api.Test
 
 // https://kotlinlang.org/docs/channels.html#fan-out
-class FainInChannelTest {
+class FanInChannelTest {
 
     /*
     Multiple coroutines may receive from the same channel, distributing work between themselves.
