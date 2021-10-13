@@ -1,4 +1,4 @@
-package nu.westlin.kotlin.learnkotlin.lessbasic.inlineclasses
+package nu.westlin.kotlin.learnkotlin.lessbasic.valueclasses
 
 import io.mockk.ConstantMatcher
 import io.mockk.MockKGateway.CallRecorder
@@ -7,6 +7,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.isAccessible
 
 fun <T : Any> value(value: T): T =
     if (value::class.isValue || value::class.isInline) inlineValue(value)
@@ -37,3 +38,23 @@ val KClass<*>.isInline: Boolean
     get() = !isData &&
         primaryConstructor?.parameters?.size == 1 &&
         java.declaredMethods.any { it.name == "box-impl" }
+
+fun <T : Any> returnValueClass(value: T): T {
+    require(value::class.isValue)
+    val constructor = value::class.primaryConstructor!!
+    val constructorParameter = constructor.parameters[0]
+    val memberProperty = value::class.declaredMemberProperties
+        .first { it.name == constructorParameter.name }
+        .apply { isAccessible = true }
+        .let @Suppress("UNCHECKED_CAST") { it as KProperty1<T, T> }
+    return memberProperty.get(value)
+}
+
+inline fun <reified T : Any> MockKMatcherScope.anyValueClass(): T {
+    require(T::class.isValue)
+    val constructor = T::class.primaryConstructor!!
+    val constructorParameterType = constructor.parameters[0].type.classifier as KClass<*>
+    val callRecorder = getProperty("callRecorder") as CallRecorder
+    val anyMatcher = callRecorder.matcher(ConstantMatcher<T>(true), constructorParameterType)
+    return constructor.call(anyMatcher)
+}

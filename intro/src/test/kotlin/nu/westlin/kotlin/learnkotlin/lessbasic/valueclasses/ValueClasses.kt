@@ -1,4 +1,4 @@
-package nu.westlin.kotlin.learnkotlin.lessbasic.inlineclasses
+package nu.westlin.kotlin.learnkotlin.lessbasic.valueclasses
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -26,7 +26,7 @@ value class Firstname(val value: String)
 @JvmInline
 value class Lastname(val value: String)
 
-internal class InlineClassesTest {
+internal class ValueClassesTest {
 
     @Test
     fun `inline class`() {
