@@ -9,7 +9,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
 
 fun <T : Any> value(value: T): T =
-    if (value::class.isInline) inlineValue(value)
+    if (value::class.isValue || value::class.isInline) inlineValue(value)
     else value
 
 @Suppress("UNCHECKED_CAST")
@@ -21,7 +21,7 @@ fun <T : Any> inlineValue(value: T): T {
 }
 
 inline fun <reified T : Any> MockKMatcherScope.anyValue(): T =
-    if (T::class.isInline) anyInlineValue()
+    if (T::class.isValue || T::class.isInline) anyInlineValue()
     else any()
 
 
