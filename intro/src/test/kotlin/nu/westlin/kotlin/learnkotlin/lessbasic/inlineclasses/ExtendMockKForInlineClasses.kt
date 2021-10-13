@@ -1,4 +1,4 @@
-package nu.westlin.kotlin.learnkotlin.basics
+package nu.westlin.kotlin.learnkotlin.lessbasic.inlineclasses
 
 import io.mockk.ConstantMatcher
 import io.mockk.MockKGateway.CallRecorder

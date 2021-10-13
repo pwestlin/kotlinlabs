@@ -2,8 +2,6 @@ package nu.westlin.kotlin.learnkotlin.lessbasic.inlineclasses
 
 import io.mockk.every
 import io.mockk.mockk
-import nu.westlin.kotlin.learnkotlin.basics.anyValue
-import nu.westlin.kotlin.learnkotlin.basics.value
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
