@@ -668,58 +668,6 @@ internal class PantDSLTest {
 
 }
 
-@JvmInline
-value class InlinedClass(val bar: String)
-
-class InlineFoo {
-    fun takesInlinedClassAsAParam(inlinedClass: InlinedClass) = inlinedClass.bar
-
-    fun returnslinedClassAsAParam() = InlinedClass("fossing")
-}
-
-class User(val username: String, val password: String)
-
-/*
-inline class Username(val username: String) {
-    init {
-        if(username.length < 10 && username.length > 20) throw RuntimeException("Username must be between 10 and 20 chars long")
-    }
-}
-inline class Password(val password: String)
-class StronglyTypedUser(val username: Username, val password: Password)
-*/
-
-
-typealias Username = String
-typealias Password = String
-
-class UserWithTypeAliases(val username: Username, val password: Password)
-
-internal class InlineClassTest {
-    val inlineFoo = mockk<InlineFoo>()
-
-    @Test
-    fun `as a param`() {
-        every { inlineFoo.takesInlinedClassAsAParam(anyValue()) } returns "fisk"
-
-        assertThat(inlineFoo.takesInlinedClassAsAParam(InlinedClass("bla"))).isEqualTo("fisk")
-    }
-
-    @Test
-    fun `as result`() {
-        val inlinedClass = InlinedClass("snorre")
-        every { inlineFoo.returnslinedClassAsAParam() } returns value(inlinedClass)
-
-        assertThat(inlineFoo.returnslinedClassAsAParam()).isEqualTo(inlinedClass)
-    }
-
-    @Test
-    fun `inline class`() {
-        val user = User("sven", "abc123")
-    }
-
-}
-
 sealed class ResultOf<out R> {
     data class Success<out R>(val value: R) : ResultOf<R>()
     data class Failure(

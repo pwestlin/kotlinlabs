@@ -1,4 +1,4 @@
-package nu.westlin.kotlin.learnkotlin.lessbasic
+package nu.westlin.kotlin.learnkotlin.lessbasic.inlineclasses
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

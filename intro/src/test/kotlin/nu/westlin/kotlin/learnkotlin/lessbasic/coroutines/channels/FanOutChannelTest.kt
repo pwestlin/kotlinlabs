@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -49,5 +50,25 @@ class FanOutChannelTest {
 
     private fun log(msg: String) {
         println("${Instant.now()}: $msg - ${Thread.currentThread().name}")
+    }
+}
+
+class FooTest {
+
+    interface Foo {
+
+        fun bar(): String
+
+        companion object : Foo {
+            override fun bar(): String {
+                return "bar"
+            }
+
+        }
+    }
+
+    @Test
+    fun `asfgfhs dh`() {
+        assertThat(Foo.bar()).isEqualTo("bar")
     }
 }
