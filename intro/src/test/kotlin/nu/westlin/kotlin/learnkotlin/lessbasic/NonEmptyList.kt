@@ -2,6 +2,7 @@ package nu.westlin.kotlin.learnkotlin.lessbasic
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
+import java.util.LinkedList
 
 class NonEmptyListWithRuntimeCheckTest {
 
@@ -43,7 +44,8 @@ class NonEmptyListWithCompileTimeCheckTest {
     class NonEmptyList<E> private constructor(list: List<E>) : List<E> by list {
         companion object {
             fun <T> of(head: T, vararg elements: T): NonEmptyList<T> {
-                return NonEmptyList(listOf(head) + listOf(*elements))
+                return NonEmptyList(LinkedList(elements.asList()).apply { push(head) })
+                //return NonEmptyList(listOf(head) + listOf(*elements))
             }
         }
 
@@ -55,7 +57,7 @@ class NonEmptyListWithCompileTimeCheckTest {
         // Compile error
         // NonEmptyList.of<Int>()
     }
-
+    
     @Test
     fun `one value`() {
         val of = NonEmptyList.of(1)
